@@ -1,0 +1,109 @@
+---
+import Base from '../layouts/Base.astro';
+import Bandeau from '../components/Bandeau.astro';
+import Icone from '../components/Icone.astro';
+import { business, adresseLigne, telHref, smsDevis, mailtoDevis } from '../data/business';
+import { noeudFaq } from '../lib/schema';
+
+const miettes = [{ nom: 'Contact', chemin: '/contact/' }];
+const faq = [
+  { q: 'Peut-on demander un devis par SMS ?', r: `Oui. Envoyez au ${business.telephone.affichage} des photos de l'arbre ou du terrain, la commune et les conditions d'accès.` },
+  { q: 'Y a-t-il un formulaire de contact ?', r: `Non. Le contact se fait par téléphone, SMS ou e-mail (${business.email}), sans intermédiaire.` },
+];
+const osm = `https://www.openstreetmap.org/?mlat=${business.geo.lat}&mlon=${business.geo.lon}#map=14/${business.geo.lat}/${business.geo.lon}`;
+---
+<Base
+  titre="Contact : appel, SMS, e-mail"
+  description={`Contactez Propreté Paysage Multiservice à Louer (Landes) : ${business.telephone.affichage} par appel ou SMS, ou ${business.email}. Photos bienvenues.`}
+  og="contact"
+  miettes={miettes}
+  typePage="ContactPage"
+  noeuds={[noeudFaq('/contact/', faq)]}
+>
+  <Bandeau h1="Nous contacter" accroche="Par téléphone, par SMS ou par e-mail. Il n'y a pas de formulaire : votre message arrive directement." miettes={miettes} />
+
+  <div class="enveloppe bloc contact">
+    <section aria-labelledby="titre-tel" class="contact-tel">
+      <h2 id="titre-tel">Par téléphone</h2>
+      <a class="contact-numero" href={telHref}><span class="visuellement-cache">Appeler le </span>{business.telephone.affichage}</a>
+      <div class="contact-actions">
+        <a class="action action-plein" href={telHref}><Icone nom="tel" />Appeler</a>
+        <a class="action" href={smsDevis()}><Icone nom="sms" />Envoyer un SMS</a>
+      </div>
+    </section>
+
+    <section aria-labelledby="titre-mail">
+      <h2 id="titre-mail">Par e-mail</h2>
+      <p><a class="contact-mail" href={mailtoDevis()}>{business.email}</a></p>
+      <p class="contact-note">Le lien ouvre un message pré-rempli avec les informations utiles au devis.</p>
+    </section>
+
+    <section aria-labelledby="titre-infos" class="prose">
+      <h2 id="titre-infos">Que préciser pour un devis ?</h2>
+      <ul>
+        <li>La commune du chantier.</li>
+        <li>Le type d'intervention : abattage, élagage, débardage, débroussaillage, entretien, nettoyage.</li>
+        <li>Pour un arbre : l'essence si vous la connaissez, la hauteur approximative, la distance à la maison.</li>
+        <li>Pour un terrain : la surface approximative et l'état de la végétation.</li>
+        <li>L'accès : largeur du portail, pente, sol meuble, ligne électrique à proximité.</li>
+        <li>Des photos : l'arbre en entier, sa base, et ce qui l'entoure.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="titre-adresse">
+      <h2 id="titre-adresse">Adresse</h2>
+      <address>
+        {business.nom}<br />
+        {business.adresse.rue}<br />
+        {business.adresse.codePostal} {business.adresse.ville}
+      </address>
+      <p class="contact-note"><a href={osm} rel="noopener">Voir sur OpenStreetMap</a></p>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .contact {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+    gap: var(--s-7);
+  }
+  .contact h2 {
+    font-size: var(--t-2);
+    margin-bottom: var(--s-4);
+  }
+  .contact-numero {
+    display: inline-block;
+    font-family: var(--f-titre);
+    font-stretch: var(--large-chiffre);
+    font-weight: 850;
+    font-size: var(--t-4);
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    font-variant-numeric: tabular-nums;
+    padding-bottom: 0.14em;
+    background: var(--trait) no-repeat 0 100% / 100% 0.2em;
+  }
+  .contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    margin-top: var(--s-5);
+  }
+  .contact-mail {
+    font-family: var(--f-titre);
+    font-stretch: 85%;
+    font-weight: 700;
+    font-size: var(--t-1);
+    overflow-wrap: anywhere;
+  }
+  .contact-note {
+    margin-top: var(--s-3);
+    font-size: var(--t--1);
+    color: var(--texte-doux);
+  }
+  address {
+    font-style: normal;
+  }
+</style>

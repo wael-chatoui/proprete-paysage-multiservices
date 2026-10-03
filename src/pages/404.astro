@@ -1,0 +1,13 @@
+---
+import Base from '../layouts/Base.astro';
+import Bandeau from '../components/Bandeau.astro';
+import ListePrestations from '../components/ListePrestations.astro';
+import { prestations } from '../lib/contenu';
+const liste = await prestations();
+---
+<Base titre="Page introuvable" description="Cette page n'existe pas ou a été déplacée. Retrouvez les prestations de Propreté Paysage Multiservice ou appelez le 06 85 57 06 75." noindex>
+  <Bandeau h1="Cette page n'existe pas ou a été déplacée" accroche="Vérifiez l'adresse, ou repartez d'une prestation ci-dessous." miettes={[{ nom: 'Page introuvable', chemin: '/404/' }]} />
+  <div class="enveloppe bloc">
+    <ListePrestations prestations={liste} titreNiveau="h2" />
+  </div>
+</Base>

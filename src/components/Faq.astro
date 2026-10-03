@@ -1,0 +1,67 @@
+---
+// Questions fréquentes en <details> : le texte reste dans le HTML pour les robots.
+interface Props {
+  faq: { q: string; r: string }[];
+  titre?: string;
+}
+const { faq, titre = 'Questions fréquentes' } = Astro.props;
+---
+{faq.length > 0 && (
+  <section class="faq" aria-labelledby="faq-titre">
+    <h2 id="faq-titre">{titre}</h2>
+    <div class="faq-liste">
+      {faq.map((f) => (
+        <details>
+          <summary><h3>{f.q}</h3></summary>
+          <p>{f.r}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .faq h2 {
+    font-size: var(--t-3);
+    margin-bottom: var(--s-5);
+  }
+  .faq-liste {
+    max-width: var(--mesure);
+    border-top: 2px solid var(--pin);
+  }
+  details {
+    border-bottom: 1px solid var(--filet);
+  }
+  summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--s-4);
+    padding-block: var(--s-4);
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary h3 {
+    font-size: var(--t-1);
+    font-stretch: 82%;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  summary::after {
+    content: '+';
+    font-family: var(--f-titre);
+    font-weight: 700;
+    font-size: 1.6rem;
+    line-height: 1;
+    flex: none;
+  }
+  details[open] summary::after {
+    content: '–';
+  }
+  details p {
+    padding-bottom: var(--s-5);
+  }
+</style>

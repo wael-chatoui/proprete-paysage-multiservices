@@ -1,0 +1,55 @@
+---
+// Fiche d'identité : les faits vérifiables qui servent de preuve (et d'entité pour les moteurs).
+import { business, adresseLigne, siretAffiche, dateCreationAffichee, telHref } from '../data/business';
+interface Props {
+  titre?: string;
+}
+const { titre = "Fiche d'identité de l'entreprise" } = Astro.props;
+---
+<section class="fiche" aria-labelledby="fiche-titre">
+  <h2 id="fiche-titre">{titre}</h2>
+  <dl>
+    <div><dt>Nom</dt><dd>{business.nom}</dd></div>
+    <div><dt>Forme</dt><dd>{business.formeJuridique}</dd></div>
+    <div><dt>Création</dt><dd><time datetime={business.dateCreation}>{dateCreationAffichee}</time></dd></div>
+    <div><dt>SIRET</dt><dd>{siretAffiche}</dd></div>
+    <div><dt>Immatriculation</dt><dd>{business.rcs}</dd></div>
+    <div><dt>Adresse</dt><dd>{adresseLigne}</dd></div>
+    <div><dt>Téléphone</dt><dd><a href={telHref}>{business.telephone.affichage}</a></dd></div>
+    <div><dt>E-mail</dt><dd><a href={`mailto:${business.email}`}>{business.email}</a></dd></div>
+  </dl>
+  <p class="fiche-source">Données publiques vérifiables sur l'<a href={`https://annuaire-entreprises.data.gouv.fr/etablissement/${business.siret}`} rel="noopener">annuaire des entreprises de l'État</a>.</p>
+</section>
+
+<style>
+  .fiche h2 {
+    font-size: var(--t-3);
+    margin-bottom: var(--s-5);
+  }
+  dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: 0 var(--s-6);
+    border-top: 2px solid var(--pin);
+  }
+  dl > div {
+    padding-block: var(--s-3);
+    border-bottom: 1px solid var(--filet);
+  }
+  dt {
+    font-family: var(--f-titre);
+    font-stretch: 85%;
+    font-weight: 600;
+    font-size: var(--t--1);
+    color: var(--texte-doux);
+  }
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .fiche-source {
+    margin-top: var(--s-4);
+    font-size: var(--t--1);
+    color: var(--texte-doux);
+  }
+</style>

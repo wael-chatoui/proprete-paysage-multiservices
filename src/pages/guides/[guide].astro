@@ -1,0 +1,146 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Bandeau from '../../components/Bandeau.astro';
+import EncartContact from '../../components/EncartContact.astro';
+import Faq from '../../components/Faq.astro';
+import Sources from '../../components/Sources.astro';
+import { prestations, secteurs, guides, dateFr } from '../../lib/contenu';
+import { noeudArticle, noeudFaq, url } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const liste = await guides();
+  return liste.map((g) => ({ params: { guide: g.id }, props: { g } }));
+}
+
+const { g } = Astro.props;
+const { Content, headings } = await render(g);
+const d = g.data;
+const chemin = `/guides/${g.id}/`;
+
+const toutesPrestations = await prestations();
+const tousSecteurs = await secteurs();
+const tousGuides = await guides();
+const prestationsLiees = d.prestations.map((p) => toutesPrestations.find((x) => x.id === p)).filter((x) => x !== undefined);
+const secteursLies = d.secteurs.map((p) => tousSecteurs.find((x) => x.id === p)).filter((x) => x !== undefined);
+const autres = tousGuides.filter((x) => x.id !== g.id);
+const sommaire = headings.filter((h) => h.depth === 2);
+
+const miettes = [
+  { nom: 'Guides', chemin: '/guides/' },
+  { nom: d.nom, chemin },
+];
+---
+<Base
+  titre={d.title}
+  description={d.description}
+  og={`guide-${g.id}`}
+  miettes={miettes}
+  typePage="WebPage"
+  dateModified={d.dateModified}
+  datePublished={d.datePublished}
+  principal={`${url(chemin)}#article`}
+  noeuds={[
+    noeudArticle({ chemin, titre: d.h1, description: d.description, datePublished: d.datePublished, dateModified: d.dateModified, image: url(`/og/guide-${g.id}.png`), sources: d.sources }),
+    noeudFaq(chemin, d.faq),
+  ]}
+>
+  <Bandeau h1={d.h1} miettes={miettes}>
+    <div class="resume">
+      <h2 class="visuellement-cache">En bref</h2>
+      <p>{d.resume}</p>
+    </div>
+    <p class="guide-dates">
+      Publié le <time datetime={d.datePublished}>{dateFr(d.datePublished)}</time>, mis à jour le <time datetime={d.dateModified}>{dateFr(d.dateModified)}</time>. Textes officiels cités en fin de page.
+    </p>
+  </Bandeau>
+
+  <div class="enveloppe page-grille">
+    <article class="prose page-texte">
+      <Content />
+      <p class="avertissement">Ce guide résume des textes publics à la date indiquée ; il ne remplace pas un conseil juridique. En cas de doute, renseignez-vous auprès de votre mairie, de la direction départementale des territoires et de la mer (DDTM) ou d'un conciliateur de justice.</p>
+    </article>
+
+    <div class="page-cote">
+      {sommaire.length > 0 && (
+        <nav class="sommaire" aria-labelledby="titre-sommaire">
+          <h2 id="titre-sommaire">Dans ce guide</h2>
+          <ol>{sommaire.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+        </nav>
+      )}
+      <div class="page-cote-collant">
+        <EncartContact titre="Besoin d'une intervention ?" prestation={prestationsLiees[0]?.data.nom} />
+      </div>
+    </div>
+  </div>
+
+  <div class="enveloppe page-fin">
+    <Faq faq={d.faq} />
+    <Sources sources={d.sources} />
+    <div class="page-suite-interne">
+      {prestationsLiees.length > 0 && (
+        <section aria-labelledby="titre-prestations-guide">
+          <h2 id="titre-prestations-guide">Prestations concernées</h2>
+          <ul class="liens-lies">{prestationsLiees.map((p) => <li><a href={`/${p.id}/`}>{p.data.nom}</a><p>{p.data.accroche}</p></li>)}</ul>
+        </section>
+      )}
+      {secteursLies.length > 0 && (
+        <section aria-labelledby="titre-secteurs-guide">
+          <h2 id="titre-secteurs-guide">Secteurs particulièrement concernés</h2>
+          <ul class="liens-lies">{secteursLies.map((s) => <li><a href={`/secteurs/${s.id}/`}>{s.data.nom}</a></li>)}</ul>
+        </section>
+      )}
+      <section aria-labelledby="titre-autres-guides">
+        <h2 id="titre-autres-guides">Autres guides</h2>
+        <ul class="liens-lies">{autres.map((a) => <li><a href={`/guides/${a.id}/`}>{a.data.nom}</a></li>)}</ul>
+      </section>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .resume {
+    margin-top: var(--s-5);
+    max-width: 62ch;
+    padding-left: var(--s-5);
+    border-left: 6px solid var(--marquage);
+  }
+  .resume p {
+    font-size: var(--t-1);
+    line-height: 1.5;
+  }
+  .guide-dates {
+    margin-top: var(--s-5);
+    font-size: var(--t--1);
+    color: rgb(255 255 255 / 0.75);
+  }
+  .avertissement {
+    margin-top: var(--s-7);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--filet);
+    font-size: var(--t--1);
+    color: var(--texte-doux);
+  }
+  .sommaire h2 {
+    font-size: var(--t-1);
+    font-stretch: 82%;
+    margin-bottom: var(--s-3);
+  }
+  .sommaire ol {
+    padding-left: 1.3em;
+    display: grid;
+    gap: var(--s-2);
+    font-size: var(--t--1);
+    line-height: 1.4;
+  }
+  .page-suite-interne {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    gap: var(--s-6);
+  }
+  @media (max-width: 60rem) {
+    .sommaire {
+      display: none;
+    }
+  }
+</style>

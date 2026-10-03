@@ -1,0 +1,103 @@
+---
+import Base from '../../layouts/Base.astro';
+import Bandeau from '../../components/Bandeau.astro';
+import CarteCernes from '../../components/CarteCernes.astro';
+import { secteurs, fourchetteKm } from '../../lib/contenu';
+import { ID } from '../../lib/schema';
+
+const liste = await secteurs();
+const points = liste.map((s) => ({ slug: s.id, nom: s.data.nom, centre: s.data.centre, kmMin: fourchetteKm(s.data.communes).min, kmMax: fourchetteKm(s.data.communes).max }));
+const miettes = [{ nom: "Zone d'intervention", chemin: '/secteurs/' }];
+const confirmees = liste.filter((s) => !s.data.aConfirmer).flatMap((s) => s.data.communes).filter((c) => c.km > 0).sort((a, b) => a.km - b.km);
+const proche = confirmees[0];
+const loin = confirmees[confirmees.length - 1];
+const noeudListe = {
+  '@type': 'ItemList',
+  name: "Secteurs d'intervention",
+  itemListElement: liste.map((s, i) => ({ '@type': 'ListItem', position: i + 1, item: { '@id': ID.zone(s.id) } })),
+};
+---
+<Base
+  titre="Zone d'intervention : Landes, Béarn, Pays basque, Gironde"
+  description="Depuis Louer, entre Dax et Mont-de-Marsan : 9 secteurs d'intervention dans les Landes, le Béarn des Gaves, le Pays basque intérieur et le sud de la Gironde."
+  og="secteurs"
+  miettes={miettes}
+  typePage="CollectionPage"
+  noeuds={[noeudListe]}
+>
+  <Bandeau
+    h1="Où intervenons-nous ? Neuf secteurs autour de Louer"
+    accroche={proche && loin ? `Nous intervenons dans les Landes et les départements voisins, depuis Louer : de ${proche.km} km pour ${proche.nom} à ${loin.km} km pour ${loin.nom}, par la route.` : 'Nous intervenons dans les Landes et les départements voisins, depuis Louer.'}
+    miettes={miettes}
+  />
+  <div class="enveloppe zone">
+    <CarteCernes secteurs={points} id="carte-secteurs" />
+    <ul class="zone-liste">
+      {liste.map((s) => {
+        const { min, max } = fourchetteKm(s.data.communes);
+        return (
+          <li>
+            <h2><a href={`/secteurs/${s.id}/`}>{s.data.nom}</a></h2>
+            <p class="zone-km">De {min} à {max} km de Louer par la route{s.data.aConfirmer ? ', rayon à confirmer' : ''}</p>
+            <p>{s.data.accroche}</p>
+            <p class="zone-communes">{s.data.communes.map((c) => c.nom).join(', ')}</p>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</Base>
+
+<style>
+  .zone {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: var(--s-7);
+    padding-block: var(--s-7);
+    align-items: start;
+  }
+  .zone > :global(.carte) {
+    position: sticky;
+    top: var(--s-5);
+  }
+  .zone-liste {
+    list-style: none;
+    padding: 0;
+    border-top: 2px solid var(--pin);
+  }
+  .zone-liste li {
+    padding-block: var(--s-5);
+    border-bottom: 1px solid var(--filet);
+  }
+  .zone-liste h2 {
+    font-size: var(--t-2);
+  }
+  .zone-liste h2 a {
+    text-decoration: none;
+  }
+  .zone-liste h2 a:hover {
+    text-decoration: underline;
+  }
+  .zone-km {
+    margin-top: var(--s-1);
+    font-family: var(--f-titre);
+    font-stretch: 85%;
+    font-weight: 600;
+    color: var(--ecorce);
+  }
+  .zone-liste p + p {
+    margin-top: var(--s-2);
+  }
+  .zone-communes {
+    font-size: var(--t--1);
+    color: var(--texte-doux);
+  }
+  @media (max-width: 60rem) {
+    .zone {
+      grid-template-columns: 1fr;
+    }
+    .zone > :global(.carte) {
+      position: static;
+    }
+  }
+</style>

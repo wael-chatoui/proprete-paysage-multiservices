@@ -1,0 +1,166 @@
+---
+import Marque from './Marque.astro';
+import Icone from './Icone.astro';
+import { business, telHref } from '../data/business';
+
+const liens = [
+  { href: '/prestations/', nom: 'Prestations' },
+  { href: '/secteurs/', nom: "Zone d'intervention" },
+  { href: '/guides/', nom: 'Guides' },
+  { href: '/entreprise/', nom: 'Entreprise' },
+  { href: '/contact/', nom: 'Contact' },
+];
+const actuel = Astro.url.pathname;
+const estActif = (href: string) => actuel === href || (href !== '/' && actuel.startsWith(href));
+---
+<header class="entete">
+  <div class="enveloppe entete-ligne">
+    <a class="entete-nom" href="/" aria-label={`${business.nom}, accueil`}>
+      <Marque taille={38} />
+      <span>
+        <span class="entete-raison">{business.nom}</span>
+        <span class="entete-sous">Travaux forestiers à Louer, Landes</span>
+      </span>
+    </a>
+
+    <nav class="entete-nav" aria-label="Navigation principale">
+      <ul>
+        {liens.map((l) => (
+          <li><a href={l.href} aria-current={estActif(l.href) ? 'page' : undefined}>{l.nom}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <a class="action action-plein entete-appel" href={telHref}>
+      <Icone nom="tel" />
+      <span>{business.telephone.affichage}</span>
+    </a>
+
+    <details class="entete-menu">
+      <summary>Menu</summary>
+      <nav aria-label="Navigation mobile">
+        <ul>
+          {liens.map((l) => (
+            <li><a href={l.href} aria-current={estActif(l.href) ? 'page' : undefined}>{l.nom}</a></li>
+          ))}
+        </ul>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<style>
+  .entete {
+    position: relative;
+    z-index: 20;
+    background: var(--papier);
+    border-bottom: 1px solid var(--filet);
+  }
+  .entete-ligne {
+    display: flex;
+    align-items: center;
+    gap: var(--s-5);
+    min-height: 4.5rem;
+  }
+  .entete-nom {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    text-decoration: none;
+    margin-right: auto;
+  }
+  .entete-nom > span {
+    display: grid;
+  }
+  .entete-raison {
+    font-family: var(--f-titre);
+    font-stretch: 78%;
+    font-weight: 800;
+    font-size: 1.2rem;
+    line-height: 1.05;
+  }
+  .entete-sous {
+    font-size: var(--t--1);
+    color: var(--texte-doux);
+    line-height: 1.3;
+  }
+  .entete-nav ul,
+  .entete-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .entete-nav ul {
+    display: flex;
+    gap: var(--s-5);
+  }
+  .entete-nav a,
+  .entete-menu a {
+    font-family: var(--f-titre);
+    font-stretch: 88%;
+    font-weight: 600;
+    text-decoration: none;
+    padding-block: var(--s-2);
+  }
+  .entete-nav a:hover,
+  .entete-nav a[aria-current='page'] {
+    background: var(--trait) no-repeat 0 100% / 100% 0.32em;
+  }
+  .entete-appel {
+    font-size: 1.05rem;
+    padding-inline: var(--s-4);
+  }
+  .entete-menu {
+    display: none;
+  }
+
+  @media (max-width: 68rem) {
+    .entete-nav {
+      display: none;
+    }
+    .entete-menu {
+      display: block;
+    }
+    .entete-menu summary {
+      list-style: none;
+      cursor: pointer;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      padding-inline: var(--s-4);
+      border: 2px solid var(--pin);
+      border-radius: var(--rayon);
+      font-family: var(--f-titre);
+      font-weight: 700;
+    }
+    .entete-menu summary::-webkit-details-marker {
+      display: none;
+    }
+    .entete-menu[open] nav {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      background: var(--papier);
+      border-bottom: 1px solid var(--filet);
+      padding: var(--s-4) var(--gouttiere) var(--s-5);
+    }
+    .entete-menu li a {
+      display: block;
+      padding-block: var(--s-3);
+      font-size: var(--t-1);
+      border-bottom: 1px solid var(--filet);
+    }
+  }
+  @media (max-width: 40rem) {
+    .entete-appel {
+      display: none;
+    }
+    .entete-sous {
+      display: none;
+    }
+    .entete-raison {
+      font-size: 1.05rem;
+    }
+  }
+</style>

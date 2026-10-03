@@ -1,0 +1,301 @@
+---
+// Carte de la zone d'intervention dessinée comme la coupe d'un tronc : Louer au cœur,
+// un cerne tous les 20 km à vol d'oiseau, les secteurs à leur position réelle.
+import { business } from '../data/business';
+import { etiquettes, cote, adour } from '../data/carte';
+
+interface Secteur {
+  slug: string;
+  nom: string;
+  centre: { lat: number; lon: number };
+  kmMin: number;
+  kmMax: number;
+}
+interface Props {
+  secteurs: Secteur[];
+  actif?: string;
+  id?: string;
+}
+const { secteurs, actif, id = 'carte' } = Astro.props;
+
+// Projection équirectangulaire centrée sur Louer, en unités SVG (4,2 par km).
+const ECHELLE = 4.2;
+const { lat: lat0, lon: lon0 } = business.geo;
+const kx = 111.32 * Math.cos((lat0 * Math.PI) / 180);
+const ky = 110.57;
+const proj = (lat: number, lon: number) => ({
+  x: +((lon - lon0) * kx * ECHELLE).toFixed(1),
+  y: +(-(lat - lat0) * ky * ECHELLE).toFixed(1),
+});
+
+const vb = { x: -330, y: -335, l: 640, h: 565 };
+
+// Cernes irréguliers, comme une vraie coupe de bois.
+function cerne(km: number) {
+  const R = km * ECHELLE;
+  const pts: string[] = [];
+  const n = 144;
+  for (let i = 0; i <= n; i++) {
+    const t = (i / n) * Math.PI * 2;
+    const r = R * (1 + 0.016 * Math.sin(3 * t + km * 0.11) + 0.009 * Math.sin(7 * t + km * 0.37) + 0.005 * Math.sin(13 * t + km));
+    pts.push(`${(r * Math.cos(t)).toFixed(1)},${(r * Math.sin(t)).toFixed(1)}`);
+  }
+  return `M${pts.join('L')}Z`;
+}
+const cernes = [20, 40, 60, 80, 100].map((km) => ({ km, d: cerne(km) }));
+// Cernes fins intermédiaires (bois d'été)
+const cernesFins = [8, 14, 30, 50, 70, 90].map((km) => cerne(km));
+
+const ligne = (pts: [number, number][]) =>
+  pts.map(([la, lo], i) => {
+    const p = proj(la, lo);
+    return `${i ? 'L' : 'M'}${p.x},${p.y}`;
+  }).join('');
+const traitCote = ligne(cote);
+const ocean = `${traitCote}L${vb.x},${proj(43.37, -1.79).y}L${vb.x},${vb.y}L${proj(44.66, -1.25).x},${vb.y}Z`;
+const traitAdour = ligne(adour);
+
+const points = secteurs.map((s) => {
+  const p = proj(s.centre.lat, s.centre.lon);
+  const e = etiquettes[s.slug] ?? { court: s.nom, cote: 'd' as const };
+  return { ...s, ...p, e };
+});
+
+const titreId = `${id}-titre`;
+const descId = `${id}-desc`;
+---
+<figure class="carte" data-carte>
+  <svg viewBox={`${vb.x} ${vb.y} ${vb.l} ${vb.h}`} role="img" aria-labelledby={`${titreId} ${descId}`}>
+    <title id={titreId}>Zone d'intervention autour de Louer (Landes)</title>
+    <desc id={descId}>Carte en cernes de 20 km autour de Louer. {points.map((p) => `${p.nom} : de ${p.kmMin} à ${p.kmMax} km par la route.`).join(' ')}</desc>
+    <defs>
+      <clipPath id={`${id}-cadre`}><rect x={vb.x} y={vb.y} width={vb.l} height={vb.h} rx="4" /></clipPath>
+      <pattern id={`${id}-houle`} width="14" height="8" patternUnits="userSpaceOnUse">
+        <path d="M0 4q3.5-3 7 0t7 0" fill="none" stroke="currentColor" stroke-width="0.9" opacity="0.35" />
+      </pattern>
+    </defs>
+    <g clip-path={`url(#${id}-cadre)`}>
+      <rect class="carte-fond" x={vb.x} y={vb.y} width={vb.l} height={vb.h} />
+      <path class="carte-ocean" d={ocean} fill={`url(#${id}-houle)`} />
+      <path class="carte-cote" d={traitCote} />
+      <g class="carte-cernes">
+        {cernesFins.map((d, i) => <path class="cerne-fin" d={d} pathLength="1" style={`--i:${i}`} />)}
+        {cernes.map((c, i) => <path class="cerne" d={c.d} pathLength="1" style={`--i:${i}`} />)}
+      </g>
+      <path class="carte-adour" d={traitAdour} />
+      <text class="carte-legende-adour" x={proj(43.735, -1.1).x} y={proj(43.735, -1.1).y}>Adour</text>
+      <text class="carte-legende-ocean" x={vb.x + 26} y={-40} transform={`rotate(-90 ${vb.x + 26} -40)`}>Océan Atlantique</text>
+      {cernes.map((c) => (
+        <text class="carte-km" x={(c.km * ECHELLE * 0.87).toFixed(1)} y={(c.km * ECHELLE * 0.5 + 5).toFixed(1)}>{c.km} km</text>
+      ))}
+    </g>
+
+    <g class="carte-points">
+      {points.map((p) => (
+        <a href={`/secteurs/${p.slug}/`} class:list={['carte-point', { actif: p.slug === actif, discret: actif && p.slug !== actif }]} aria-label={`${p.nom}, de ${p.kmMin} à ${p.kmMax} km`}>
+          <circle cx={p.x} cy={p.y} r="17" class="carte-zone" />
+          <circle cx={p.x} cy={p.y} r="6" />
+          <text
+            x={p.e.cote === 'd' ? p.x + 14 : p.e.cote === 'g' ? p.x - 14 : p.x}
+            y={p.y + (p.e.cote === 'b' ? 36 : 7) + (p.e.dy ?? 0)}
+            text-anchor={p.e.cote === 'd' ? 'start' : p.e.cote === 'g' ? 'end' : 'middle'}
+          >{p.e.court}</text>
+        </a>
+      ))}
+    </g>
+
+    <g class="carte-louer">
+      <path d="M-26-5c10-6 31-8 52-5 4 1 4 7 0 8-18 4-37 5-52 2-5-1-5-4 0-5z" class="carte-marquage" />
+      <circle r="7" />
+      <text x="0" y="-19" text-anchor="middle">Louer</text>
+    </g>
+  </svg>
+  <figcaption>Un cerne tous les 20 km à vol d'oiseau autour de Louer. Les distances de la liste sont des distances par la route.</figcaption>
+</figure>
+
+<script>
+  // Les cernes se dessinent une fois, quand la carte entre à l'écran.
+  const cartes = document.querySelectorAll<HTMLElement>('[data-carte]');
+  const calme = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!calme && 'IntersectionObserver' in window) {
+    const obs = new IntersectionObserver(
+      (entrees) => {
+        for (const e of entrees) {
+          if (e.isIntersecting) {
+            e.target.classList.add('dessine');
+            obs.unobserve(e.target);
+          }
+        }
+      },
+      { threshold: 0.35 },
+    );
+    cartes.forEach((c) => {
+      if (c.getBoundingClientRect().top > window.innerHeight) {
+        c.classList.add('a-dessiner');
+        obs.observe(c);
+      }
+    });
+  }
+</script>
+
+<style>
+  .carte {
+    margin: 0;
+    color: var(--pin);
+  }
+  .carte svg {
+    width: 100%;
+    height: auto;
+    font-family: var(--f-titre);
+  }
+  .carte-fond {
+    fill: var(--sable);
+  }
+  .carte-ocean {
+    color: var(--pin);
+    stroke: none;
+  }
+  .carte-cote {
+    fill: none;
+    stroke: var(--pin);
+    stroke-width: 1.6;
+  }
+  .carte-adour {
+    fill: none;
+    stroke: var(--pin-clair);
+    stroke-width: 1.3;
+    stroke-dasharray: 5 4;
+    opacity: 0.7;
+  }
+  .carte-legende-adour,
+  .carte-legende-ocean {
+    font-size: 16px;
+    font-stretch: 85%;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    fill: var(--pin-clair);
+  }
+  .cerne,
+  .cerne-fin {
+    fill: none;
+    stroke: var(--ecorce);
+  }
+  .cerne {
+    stroke-width: 1.8;
+    opacity: 0.75;
+  }
+  .cerne-fin {
+    stroke-width: 0.8;
+    opacity: 0.4;
+  }
+  .carte-km {
+    font-size: 15px;
+    font-stretch: 80%;
+    font-weight: 600;
+    fill: var(--ecorce);
+    paint-order: stroke;
+    stroke: var(--sable);
+    stroke-width: 4px;
+  }
+  .carte-point {
+    color: var(--pin);
+    cursor: pointer;
+  }
+  .carte-point circle {
+    fill: currentColor;
+  }
+  .carte-point .carte-zone {
+    fill: var(--pin);
+    opacity: 0.12;
+  }
+  .carte-point text {
+    font-size: 22px;
+    font-stretch: 78%;
+    font-weight: 750;
+    fill: currentColor;
+    paint-order: stroke;
+    stroke: var(--sable);
+    stroke-width: 5px;
+    stroke-linejoin: round;
+  }
+  .carte-point:hover text,
+  .carte-point:focus-visible text {
+    text-decoration: underline;
+  }
+  .carte-point:focus-visible {
+    outline: none;
+  }
+  .carte-point:focus-visible .carte-zone {
+    opacity: 1;
+    fill: none;
+    stroke: var(--marquage);
+    stroke-width: 3;
+  }
+  .carte-point.actif .carte-zone {
+    opacity: 1;
+    fill: none;
+    stroke: var(--marquage);
+    stroke-width: 4;
+  }
+  .carte-point.discret {
+    color: var(--pin-clair);
+  }
+  .carte-point.discret text {
+    font-weight: 600;
+  }
+  .carte-louer circle {
+    fill: var(--pin);
+  }
+  .carte-marquage {
+    fill: var(--marquage);
+  }
+  .carte-louer text {
+    font-size: 25px;
+    font-stretch: 75%;
+    font-weight: 850;
+    fill: var(--pin);
+    paint-order: stroke;
+    stroke: var(--sable);
+    stroke-width: 5px;
+  }
+  figcaption {
+    margin-top: var(--s-3);
+    font-size: var(--t--1);
+    color: var(--texte-doux);
+  }
+
+  /* Dessin des cernes, du cœur vers l'écorce */
+  .a-dessiner .cerne,
+  .a-dessiner .cerne-fin {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  .a-dessiner .carte-points,
+  .a-dessiner .carte-km {
+    opacity: 0;
+  }
+  .dessine .cerne,
+  .dessine .cerne-fin {
+    animation: pousse 1.6s cubic-bezier(0.3, 0.6, 0.2, 1) forwards;
+  }
+  .dessine .cerne {
+    animation-delay: calc(var(--i, 0) * 140ms);
+  }
+  .dessine .cerne-fin {
+    animation-delay: calc(var(--i, 0) * 110ms + 60ms);
+  }
+  .dessine .carte-points,
+  .dessine .carte-km {
+    animation: apparait 0.6s ease 1.2s forwards;
+  }
+  @keyframes pousse {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes apparait {
+    to {
+      opacity: 1;
+    }
+  }
+</style>

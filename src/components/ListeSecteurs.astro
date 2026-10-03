@@ -1,0 +1,60 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { fourchetteKm } from '../lib/contenu';
+interface Props {
+  secteurs: CollectionEntry<'secteurs'>[];
+  actif?: string;
+}
+const { secteurs, actif } = Astro.props;
+---
+<ul class="secteurs">
+  {secteurs.map((s) => {
+    const { min, max } = fourchetteKm(s.data.communes);
+    return (
+      <li>
+        <a href={`/secteurs/${s.id}/`} aria-current={s.id === actif ? 'page' : undefined}>
+          <span class="secteur-nom">{s.data.nom}</span>
+          <span class="secteur-km">{min} à {max} km</span>
+        </a>
+      </li>
+    );
+  })}
+</ul>
+
+<style>
+  .secteurs {
+    list-style: none;
+    padding: 0;
+    border-top: 2px solid var(--pin);
+  }
+  .secteurs li {
+    border-bottom: 1px solid var(--filet);
+  }
+  .secteurs a {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--s-4);
+    padding-block: var(--s-3);
+    text-decoration: none;
+  }
+  .secteur-nom {
+    font-family: var(--f-titre);
+    font-stretch: 82%;
+    font-weight: 700;
+    font-size: var(--t-1);
+    line-height: 1.2;
+  }
+  .secteurs a:hover .secteur-nom {
+    text-decoration: underline;
+  }
+  .secteurs a[aria-current='page'] .secteur-nom {
+    background: var(--trait) no-repeat 0 100% / 100% 0.25em;
+  }
+  .secteur-km {
+    flex: none;
+    font-size: var(--t--1);
+    color: var(--texte-doux);
+    font-variant-numeric: tabular-nums;
+  }
+</style>

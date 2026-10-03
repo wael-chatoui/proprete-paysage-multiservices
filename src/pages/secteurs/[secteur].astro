@@ -1,0 +1,134 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Bandeau from '../../components/Bandeau.astro';
+import EncartContact from '../../components/EncartContact.astro';
+import CarteCernes from '../../components/CarteCernes.astro';
+import Faq from '../../components/Faq.astro';
+import Sources from '../../components/Sources.astro';
+import { prestations, secteurs, guides, fourchetteKm } from '../../lib/contenu';
+import { noeudZone, noeudFaq, ID } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const liste = await secteurs();
+  return liste.map((s) => ({ params: { secteur: s.id }, props: { s } }));
+}
+
+const { s } = Astro.props;
+const { Content } = await render(s);
+const d = s.data;
+const chemin = `/secteurs/${s.id}/`;
+
+const tous = await secteurs();
+const tousGuides = await guides();
+const toutesPrestations = await prestations();
+const voisins = d.voisins.map((v) => tous.find((x) => x.id === v)).filter((x) => x !== undefined);
+const guidesLies = d.guides.map((g) => tousGuides.find((x) => x.id === g)).filter((x) => x !== undefined);
+const { min, max } = fourchetteKm(d.communes);
+const communesTriees = [...d.communes].sort((a, b) => a.km - b.km);
+
+const pointsCarte = tous.map((x) => ({
+  slug: x.id,
+  nom: x.data.nom,
+  centre: x.data.centre,
+  kmMin: fourchetteKm(x.data.communes).min,
+  kmMax: fourchetteKm(x.data.communes).max,
+}));
+
+const miettes = [
+  { nom: "Zone d'intervention", chemin: '/secteurs/' },
+  { nom: d.nom, chemin },
+];
+---
+<Base
+  titre={d.title}
+  description={d.description}
+  og={`secteur-${s.id}`}
+  miettes={miettes}
+  dateModified={d.dateModified}
+  principal={ID.zone(s.id)}
+  noindex={d.aConfirmer}
+  noeuds={[noeudZone({ slug: s.id, nom: d.nom, departements: d.departements, centre: d.centre, communes: d.communes }), noeudFaq(chemin, d.faq)]}
+>
+  <Bandeau h1={d.h1} accroche={d.accroche} miettes={miettes} dateModified={d.dateModified} />
+
+  <div class="enveloppe page-grille">
+    <article class="prose page-texte">
+      <Content />
+    </article>
+
+    <div class="page-cote">
+      <section aria-labelledby="titre-communes" class="communes">
+        <h2 id="titre-communes">Communes du secteur</h2>
+        <div class="tableau">
+          <table>
+            <caption class="visuellement-cache">Communes du secteur {d.nom} et distance par la route depuis Louer</caption>
+            <thead><tr><th scope="col">Commune</th><th scope="col">Depuis Louer</th></tr></thead>
+            <tbody>
+              {communesTriees.map((c) => (
+                <tr><td>{c.nom}</td><td>{c.km === 0 ? 'Siège' : `${c.km} km`}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="communes-note">Distances par la route, arrondies. Le secteur s'étend de {min} à {max} km de Louer.</p>
+      </section>
+      <div class="page-cote-collant">
+        <EncartContact titre={`Un chantier dans ce secteur ?`} />
+      </div>
+    </div>
+  </div>
+
+  <div class="enveloppe page-suite">
+    <section aria-labelledby="titre-carte">
+      <h2 id="titre-carte">Situer le secteur</h2>
+      <CarteCernes secteurs={pointsCarte} actif={s.id} id={`carte-${s.id}`} />
+    </section>
+    <section aria-labelledby="titre-prestations-secteur">
+      <h2 id="titre-prestations-secteur">Prestations dans ce secteur</h2>
+      <ul class="liens-lies">
+        {toutesPrestations.map((p) => (
+          <li><a href={`/${p.id}/`}>{p.data.nom}</a><p>{p.data.accroche}</p></li>
+        ))}
+      </ul>
+    </section>
+  </div>
+
+  <div class="enveloppe page-fin">
+    <Faq faq={d.faq} />
+    {guidesLies.length > 0 && (
+      <section aria-labelledby="titre-guides-secteur">
+        <h2 id="titre-guides-secteur">Guides utiles ici</h2>
+        <ul class="liens-lies">
+          {guidesLies.map((g) => (
+            <li><a href={`/guides/${g.id}/`}>{g.data.nom}</a><p>{g.data.resume}</p></li>
+          ))}
+        </ul>
+      </section>
+    )}
+    {voisins.length > 0 && (
+      <section aria-labelledby="titre-voisins">
+        <h2 id="titre-voisins">Secteurs voisins</h2>
+        <ul class="liens-lies">
+          {voisins.map((v) => (
+            <li><a href={`/secteurs/${v.id}/`}>{v.data.nom}</a><p>{v.data.accroche}</p></li>
+          ))}
+        </ul>
+      </section>
+    )}
+    <Sources sources={d.sources} />
+  </div>
+</Base>
+
+<style>
+  .communes h2 {
+    font-size: var(--t-2);
+  }
+  .communes .tableau {
+    margin-block: var(--s-4) var(--s-2);
+  }
+  .communes-note {
+    font-size: var(--t--1);
+    color: var(--texte-doux);
+  }
+</style>

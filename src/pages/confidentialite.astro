@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import Bandeau from '../components/Bandeau.astro';
+import { business } from '../data/business';
+const miettes = [{ nom: 'Confidentialité', chemin: '/confidentialite/' }];
+---
+<Base
+  titre="Confidentialité et données personnelles"
+  description="Le site de Propreté Paysage Multiservice ne dépose aucun cookie et ne mesure pas l'audience. Vos messages servent uniquement à répondre à votre demande."
+  og="accueil"
+  miettes={miettes}
+>
+  <Bandeau h1="Confidentialité et données personnelles" miettes={miettes} />
+  <div class="enveloppe bloc prose">
+    <h2>Le site dépose-t-il des cookies ?</h2>
+    <p>Non. Le site ne dépose aucun cookie, n'utilise aucun outil de mesure d'audience et ne charge aucun service tiers (polices, cartes ou vidéos sont hébergées sur le site ou absentes).</p>
+
+    <h2>Quelles données sont collectées ?</h2>
+    <p>Aucune par le site lui-même : il n'a pas de formulaire. Si vous appelez, envoyez un SMS ou un e-mail, votre numéro, votre adresse e-mail et le contenu de votre message (photos comprises) sont reçus directement par {business.nom}.</p>
+
+    <h2>À quoi servent ces données ?</h2>
+    <p>Uniquement à répondre à votre demande, à établir un devis et, si vous l'acceptez, à réaliser et facturer l'intervention. Elles ne sont ni vendues ni transmises à des tiers, hors obligations légales.</p>
+
+    <h2>Combien de temps sont-elles conservées ?</h2>
+    <p>Le temps nécessaire au traitement de la demande, puis pendant les durées prévues par la loi pour les documents commerciaux et comptables si un devis est signé.</p>
+
+    <h2>Quels sont vos droits ?</h2>
+    <p>Vous pouvez demander l'accès, la rectification ou la suppression de vos données en écrivant à <a href={`mailto:${business.email}`}>{business.email}</a>. Vous pouvez aussi adresser une réclamation à la <a href="https://www.cnil.fr/fr/plaintes" rel="noopener">CNIL</a>.</p>
+
+    <h2>Et l'hébergeur ?</h2>
+    <p>Comme tout serveur web, l'hébergeur du site peut enregistrer des journaux techniques (adresse IP, page demandée, date) pour assurer la sécurité et le fonctionnement du service.</p>
+  </div>
+</Base>

@@ -1,0 +1,61 @@
+---
+// Encart de contact des pages intérieures : appel en premier, puis SMS et e-mail pré-remplis.
+import Icone from './Icone.astro';
+import { business, telHref, smsDevis, mailtoDevis } from '../data/business';
+interface Props {
+  prestation?: string;
+  titre?: string;
+}
+const { prestation, titre = 'Un devis pour votre chantier' } = Astro.props;
+---
+<aside class="encart" aria-labelledby="encart-titre">
+  <h2 id="encart-titre">{titre}</h2>
+  <a class="encart-numero" href={telHref}><span class="visuellement-cache">Appeler le </span>{business.telephone.affichage}</a>
+  <p>Ou envoyez des photos avec la commune et l'accès :</p>
+  <div class="encart-actions">
+    <a class="action" href={smsDevis(prestation)}><Icone nom="sms" />SMS</a>
+    <a class="action" href={mailtoDevis(prestation)}><Icone nom="mail" />E-mail</a>
+  </div>
+</aside>
+
+<style>
+  .encart {
+    border: 2px solid var(--pin);
+    border-radius: var(--rayon);
+    padding: var(--s-5);
+    background: var(--papier);
+  }
+  .encart h2 {
+    font-size: var(--t-1);
+    font-stretch: 82%;
+  }
+  .encart-numero {
+    display: inline-block;
+    margin-top: var(--s-3);
+    font-family: var(--f-titre);
+    font-stretch: var(--large-chiffre);
+    font-weight: 850;
+    font-size: var(--t-3);
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    font-variant-numeric: tabular-nums;
+    padding-bottom: 0.12em;
+    background: var(--trait) no-repeat 0 100% / 100% 0.2em;
+  }
+  .encart p {
+    margin-top: var(--s-4);
+    font-size: var(--t--1);
+    color: var(--texte-doux);
+  }
+  .encart-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    margin-top: var(--s-3);
+  }
+  .encart-actions .action {
+    font-size: 1rem;
+    padding-inline: var(--s-4);
+  }
+</style>

@@ -1,0 +1,125 @@
+---
+import Marque from './Marque.astro';
+import { business, ENTITE, adresseLigne, siretAffiche, telHref, mailtoDevis } from '../data/business';
+import { prestations, secteurs } from '../lib/contenu';
+
+const listePrestations = await prestations();
+const listeSecteurs = await secteurs();
+const annee = 2026;
+---
+<footer class="pied">
+  <div class="enveloppe">
+    <div class="pied-haut">
+      <div class="pied-entite">
+        <Marque taille={52} clair />
+        <p>{ENTITE}</p>
+      </div>
+      <div class="pied-contact">
+        <a class="pied-tel" href={telHref}>{business.telephone.affichage}</a>
+        <a href={mailtoDevis()}>{business.email}</a>
+        <p>{adresseLigne}</p>
+      </div>
+    </div>
+
+    <div class="pied-liens">
+      <nav aria-labelledby="pied-prestations">
+        <h2 id="pied-prestations">Prestations</h2>
+        <ul>{listePrestations.map((p) => <li><a href={`/${p.id}/`}>{p.data.nom}</a></li>)}</ul>
+      </nav>
+      <nav aria-labelledby="pied-secteurs">
+        <h2 id="pied-secteurs">Secteurs</h2>
+        <ul>{listeSecteurs.map((s) => <li><a href={`/secteurs/${s.id}/`}>{s.data.nom}</a></li>)}</ul>
+      </nav>
+      <nav aria-labelledby="pied-site">
+        <h2 id="pied-site">Le site</h2>
+        <ul>
+          <li><a href="/guides/">Guides et réglementation</a></li>
+          <li><a href="/entreprise/">L'entreprise</a></li>
+          <li><a href="/contact/">Contact</a></li>
+          <li><a href="/mentions-legales/">Mentions légales</a></li>
+          <li><a href="/confidentialite/">Confidentialité</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <p class="pied-bas">{business.nom}, {business.formeJuridique.toLowerCase()}, SIRET {siretAffiche}, {business.rcs}. Site sans cookie ni mesure d'audience. © {annee}</p>
+  </div>
+</footer>
+
+<style>
+  .pied {
+    background: var(--pin);
+    color: var(--papier);
+    padding-block: var(--s-7) var(--s-6);
+    margin-top: var(--s-8);
+  }
+  .pied a {
+    color: inherit;
+  }
+  .pied-haut {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: var(--s-6);
+    padding-bottom: var(--s-6);
+    border-bottom: 1px solid rgb(255 255 255 / 0.2);
+  }
+  .pied-entite {
+    display: flex;
+    gap: var(--s-4);
+    align-items: flex-start;
+    max-width: 52ch;
+  }
+  .pied-entite :global(svg) {
+    flex: none;
+  }
+  .pied-contact {
+    display: grid;
+    gap: var(--s-2);
+    align-content: start;
+  }
+  .pied-tel {
+    font-family: var(--f-titre);
+    font-stretch: var(--large-chiffre);
+    font-weight: 800;
+    font-size: var(--t-3);
+    line-height: 1;
+    text-decoration: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .pied-liens {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: var(--s-6);
+    padding-block: var(--s-6);
+  }
+  .pied-liens h2 {
+    font-size: var(--t-1);
+    font-stretch: 85%;
+    margin-bottom: var(--s-3);
+    color: var(--sable);
+  }
+  .pied-liens ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--s-2);
+    font-size: var(--t--1);
+  }
+  .pied-liens a {
+    text-decoration: none;
+  }
+  .pied-liens a:hover {
+    text-decoration: underline;
+  }
+  .pied-bas {
+    font-size: var(--t--1);
+    color: rgb(255 255 255 / 0.75);
+    border-top: 1px solid rgb(255 255 255 / 0.2);
+    padding-top: var(--s-5);
+  }
+  @media (max-width: 48rem) {
+    .pied-haut {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

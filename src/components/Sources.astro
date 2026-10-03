@@ -1,0 +1,40 @@
+---
+import { dateFr } from '../lib/contenu';
+interface Props {
+  sources: { titre: string; url: string; editeur: string; consulte: string }[];
+}
+const { sources } = Astro.props;
+---
+{sources.length > 0 && (
+  <section class="sources" aria-labelledby="sources-titre">
+    <h2 id="sources-titre">Sources</h2>
+    <ol>
+      {sources.map((s) => (
+        <li>
+          <a href={s.url} rel="noopener">{s.titre}</a>, {s.editeur}. Consulté le <time datetime={s.consulte}>{dateFr(s.consulte)}</time>.
+        </li>
+      ))}
+    </ol>
+  </section>
+)}
+
+<style>
+  .sources {
+    max-width: var(--mesure);
+  }
+  .sources h2 {
+    font-size: var(--t-2);
+    margin-bottom: var(--s-4);
+  }
+  .sources ol {
+    padding-left: 1.4em;
+    font-size: var(--t--1);
+    color: var(--texte-doux);
+    display: grid;
+    gap: var(--s-2);
+  }
+  .sources a {
+    color: var(--texte);
+    overflow-wrap: anywhere;
+  }
+</style>

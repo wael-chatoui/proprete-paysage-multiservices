@@ -1,0 +1,315 @@
+---
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import Icone from '../components/Icone.astro';
+import CarteCernes from '../components/CarteCernes.astro';
+import FicheEntreprise from '../components/FicheEntreprise.astro';
+import Faq from '../components/Faq.astro';
+import ListePrestations from '../components/ListePrestations.astro';
+import ListeSecteurs from '../components/ListeSecteurs.astro';
+import { business, ENTITE, telHref, smsDevis, mailtoDevis } from '../data/business';
+import { prestations, secteurs, guides, fourchetteKm } from '../lib/contenu';
+import { noeudFaq } from '../lib/schema';
+
+const listePrestations = await prestations();
+const listeSecteurs = await secteurs();
+const listeGuides = (await guides()).slice(0, 3);
+
+const pointsCarte = listeSecteurs.map((s) => ({
+  slug: s.id,
+  nom: s.data.nom,
+  centre: s.data.centre,
+  ...(({ min, max }) => ({ kmMin: min, kmMax: max }))(fourchetteKm(s.data.communes)),
+}));
+
+const faq = [
+  { q: `Qui est ${business.nom} ?`, r: ENTITE },
+  {
+    q: 'Comment obtenir un devis ?',
+    r: `Appelez le ${business.telephone.affichage}, ou envoyez par SMS ou par e-mail (${business.email}) quelques photos des arbres ou du terrain, la commune et les conditions d'accès. Il n'y a pas de formulaire en ligne.`,
+  },
+  {
+    q: 'Dans quelles communes intervenez-vous ?',
+    r: "Dans les Landes et les départements voisins, depuis Louer : Dax, Tartas, Mont-de-Marsan, Saint-Sever, Hagetmau, la côte sud (Capbreton, Hossegor, Seignosse), le Marensin, la Haute-Lande, le Pays d'Orthe, le Béarn des Gaves (Orthez, Salies-de-Béarn) et le Pays basque intérieur.",
+  },
+  {
+    q: 'Faut-il débroussailler autour de sa maison dans les Landes ?',
+    r: "Oui, si la maison est à moins de 200 m de bois, forêts ou landes de plus de 0,5 ha : le propriétaire doit débroussailler sur 50 m autour d'elle et sur 6 m de part et d'autre de sa voie privée d'accès, selon l'arrêté préfectoral des Landes du 22 août 2025. Depuis février 2026, les jardins clos ne sont plus exemptés.",
+  },
+  {
+    q: 'Quelles prestations proposez-vous ?',
+    r: "Abattage et bûcheronnage, élagage, débardage, débroussaillage (y compris les obligations légales de débroussaillement), entretien d'espaces verts, et nettoyage de terrains.",
+  },
+];
+
+const titre = 'Abattage, élagage, débroussaillage dans les Landes';
+const description =
+  "Abattage, élagage, débardage, débroussaillage OLD et entretien de jardins depuis Louer, entre Dax et Mont-de-Marsan. Appel ou SMS : 06 85 57 06 75.";
+---
+<Base titre={titre} description={description} noeuds={[noeudFaq('/', faq)]}>
+  <section class="ouverture" aria-labelledby="titre-page">
+    <div class="enveloppe ouverture-grille">
+      <div class="ouverture-texte">
+        <h1 id="titre-page">Abattage, élagage et débroussaillage autour de Dax et Mont-de-Marsan</h1>
+        <p class="ouverture-entite">{business.nom} travaille depuis Louer, au cœur des Landes. Un pin penché sur la maison, une parcelle à débroussailler avant l'été, des chablis à sortir : décrivez-nous la situation.</p>
+
+        <div class="ouverture-appel">
+          <a class="numero" href={telHref}>
+            <span class="visuellement-cache">Appeler le </span>{business.telephone.affichage}
+          </a>
+          <p class="ouverture-alternatives">
+            Ou par écrit, photos à l'appui :
+            <a href={smsDevis()}><Icone nom="sms" />Envoyer un SMS</a>
+            <a href={mailtoDevis()}><Icone nom="mail" />Écrire un e-mail</a>
+          </p>
+        </div>
+      </div>
+      <Photo nom="accueil" sizes="(max-width: 52rem) 100vw, 40vw" prioritaire ratio="4 / 5" class="ouverture-photo" />
+    </div>
+  </section>
+
+  <section class="bloc" aria-labelledby="titre-prestations">
+    <div class="enveloppe">
+      <div class="bloc-titre">
+        <h2 id="titre-prestations">Ce que nous faisons</h2>
+        <p>Six métiers du bois et de l'extérieur, du pin isolé au fond de jardin à la parcelle forestière.</p>
+      </div>
+      <ListePrestations prestations={listePrestations} />
+    </div>
+  </section>
+
+  <section class="bloc deroule" aria-labelledby="titre-deroule">
+    <div class="enveloppe">
+      <div class="bloc-titre">
+        <h2 id="titre-deroule">Comment se passe une demande de devis ?</h2>
+      </div>
+      <ol class="etapes">
+        <li>
+          <h3>Vous appelez ou vous écrivez</h3>
+          <p>Par téléphone, SMS ou e-mail. Des photos aident beaucoup : l'arbre en entier, sa base, ce qui l'entoure.</p>
+        </li>
+        <li>
+          <h3>Vous précisez le chantier</h3>
+          <p>La commune, l'essence et la hauteur approximative, l'accès pour le matériel, la présence d'une maison ou d'une ligne électrique à proximité.</p>
+        </li>
+        <li>
+          <h3>Vous recevez un devis écrit</h3>
+          <p>Après un passage sur place si la situation l'exige. Le devis précise ce que deviennent le bois et les déchets verts.</p>
+        </li>
+        <li>
+          <h3>Le chantier est réalisé</h3>
+          <p>À la date convenue ensemble, en tenant compte de la saison et des règles en vigueur.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="bloc" aria-labelledby="titre-zone">
+    <div class="enveloppe zone-grille">
+      <div>
+        <div class="bloc-titre">
+          <h2 id="titre-zone">Où intervenons-nous ?</h2>
+          <p>Dans les Landes et les départements voisins, depuis Louer : de la côte sud au Bas-Armagnac, de la Haute-Lande au Béarn et au Pays basque intérieur.</p>
+        </div>
+        <ListeSecteurs secteurs={listeSecteurs} />
+      </div>
+      <CarteCernes secteurs={pointsCarte} id="carte-accueil" />
+    </div>
+  </section>
+
+  {listeGuides.length > 0 && (
+    <section class="bloc" aria-labelledby="titre-guides">
+      <div class="enveloppe">
+        <div class="bloc-titre">
+          <h2 id="titre-guides">Les règles à connaître avant de couper</h2>
+          <p>Débroussaillement obligatoire, arbres du voisin, période de nidification : des guides sourcés sur les textes officiels.</p>
+        </div>
+        <ul class="guides">
+          {listeGuides.map((g) => (
+            <li>
+              <h3><a href={`/guides/${g.id}/`}>{g.data.nom}</a></h3>
+              <p>{g.data.resume}</p>
+            </li>
+          ))}
+        </ul>
+        <p class="guides-tous"><a href="/guides/">Tous les guides</a></p>
+      </div>
+    </section>
+  )}
+
+  <div class="enveloppe bloc fin-grille">
+    <FicheEntreprise />
+    <Faq faq={faq} />
+  </div>
+</Base>
+
+<style>
+  .ouverture {
+    background: var(--pin);
+    color: var(--papier);
+    padding-block: var(--s-7);
+  }
+  .ouverture-grille {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: var(--s-7);
+    align-items: center;
+  }
+  .ouverture h1 {
+    font-size: var(--t-4);
+    max-width: 18ch;
+  }
+  .ouverture-entite {
+    margin-top: var(--s-5);
+    max-width: 50ch;
+    font-size: var(--t-1);
+    line-height: 1.5;
+    color: rgb(255 255 255 / 0.88);
+  }
+  .ouverture-appel {
+    margin-top: var(--s-6);
+  }
+  .numero {
+    display: inline-block;
+    font-family: var(--f-titre);
+    font-stretch: var(--large-chiffre);
+    font-weight: 850;
+    font-size: var(--t-5);
+    line-height: 0.95;
+    letter-spacing: 0.005em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-decoration: none;
+    color: var(--papier);
+    padding-bottom: 0.14em;
+    background: var(--trait) no-repeat 0 100% / 100% 0.2em;
+  }
+  .numero:hover,
+  .numero:focus-visible {
+    background-size: 100% 0.32em;
+  }
+  .ouverture-alternatives {
+    margin-top: var(--s-4);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-2) var(--s-5);
+    color: rgb(255 255 255 / 0.85);
+  }
+  .ouverture-alternatives a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: 44px;
+    color: var(--papier);
+    font-family: var(--f-titre);
+    font-stretch: 85%;
+    font-weight: 700;
+  }
+  .ouverture-alternatives :global(svg) {
+    width: 1.15em;
+    height: 1.15em;
+  }
+  .ouverture :global(.ouverture-photo figcaption) {
+    color: rgb(255 255 255 / 0.7);
+  }
+
+  .deroule {
+    border-block: 1px solid var(--filet);
+  }
+  .etapes {
+    list-style: none;
+    padding: 0;
+    counter-reset: etape;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: var(--s-6);
+  }
+  .etapes li {
+    counter-increment: etape;
+    border-top: 2px solid var(--pin);
+    padding-top: var(--s-4);
+  }
+  .etapes li::before {
+    content: counter(etape);
+    display: block;
+    font-family: var(--f-titre);
+    font-stretch: var(--large-chiffre);
+    font-weight: 850;
+    font-size: var(--t-4);
+    line-height: 1;
+    margin-bottom: var(--s-3);
+  }
+  .etapes h3 {
+    font-size: var(--t-1);
+    font-stretch: 82%;
+    margin-bottom: var(--s-2);
+  }
+  .etapes p {
+    color: var(--texte-doux);
+    font-size: var(--t--1);
+    line-height: 1.6;
+  }
+
+  .zone-grille {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: var(--s-7);
+    align-items: start;
+  }
+
+  .guides {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--s-6);
+  }
+  .guides li {
+    border-top: 2px solid var(--pin);
+    padding-top: var(--s-4);
+  }
+  .guides h3 {
+    font-size: var(--t-2);
+    margin-bottom: var(--s-3);
+  }
+  .guides h3 a {
+    text-decoration: none;
+  }
+  .guides h3 a:hover {
+    text-decoration: underline;
+  }
+  .guides p {
+    font-size: var(--t--1);
+    color: var(--texte-doux);
+  }
+  .guides-tous {
+    margin-top: var(--s-6);
+    font-family: var(--f-titre);
+    font-weight: 700;
+  }
+
+  .fin-grille {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--s-7);
+    align-items: start;
+  }
+
+  @media (max-width: 52rem) {
+    .ouverture-grille,
+    .zone-grille,
+    .fin-grille {
+      grid-template-columns: 1fr;
+    }
+    .ouverture {
+      padding-block: var(--s-6);
+    }
+    .ouverture :global(.ouverture-photo) {
+      --ratio: 3 / 2 !important;
+    }
+    .ouverture :global(.ouverture-photo:has(.photo-attente)) {
+      display: none;
+    }
+  }
+</style>

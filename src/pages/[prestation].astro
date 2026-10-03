@@ -1,0 +1,94 @@
+---
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Bandeau from '../components/Bandeau.astro';
+import Photo from '../components/Photo.astro';
+import EncartContact from '../components/EncartContact.astro';
+import Faq from '../components/Faq.astro';
+import Sources from '../components/Sources.astro';
+import ListeSecteurs from '../components/ListeSecteurs.astro';
+import { prestations, secteurs, secteursConfirmes, guides, refs } from '../lib/contenu';
+import { noeudService, noeudFaq, ID } from '../lib/schema';
+
+export async function getStaticPaths() {
+  const liste = await prestations();
+  return liste.map((p) => ({ params: { prestation: p.id }, props: { p } }));
+}
+
+const { p } = Astro.props;
+const { Content } = await render(p);
+const d = p.data;
+const chemin = `/${p.id}/`;
+
+const tousSecteurs = await secteurs();
+const tousGuides = await guides();
+const toutesPrestations = await prestations();
+const guidesLies = d.guides.map((g) => tousGuides.find((x) => x.id === g)).filter((x) => x !== undefined);
+const connexes = d.connexes.map((c) => toutesPrestations.find((x) => x.id === c)).filter((x) => x !== undefined);
+const miettes = [
+  { nom: 'Prestations', chemin: '/prestations/' },
+  { nom: d.nom, chemin },
+];
+---
+<Base
+  titre={d.title}
+  description={d.description}
+  og={p.id}
+  miettes={miettes}
+  dateModified={d.dateModified}
+  principal={ID.service(p.id)}
+  prestation={d.nom}
+  noeuds={[
+    noeudService({ slug: p.id, nom: d.nom, serviceType: d.serviceType, description: d.accroche, secteurs: refs(await secteursConfirmes()) }),
+    noeudFaq(chemin, d.faq),
+  ]}
+>
+  <Bandeau h1={d.h1} accroche={d.accroche} miettes={miettes} dateModified={d.dateModified} />
+
+  <div class="enveloppe page-grille">
+    <article class="prose page-texte">
+      <Content />
+    </article>
+
+    <div class="page-cote">
+      <Photo nom={p.id} sizes="(max-width: 60rem) 100vw, 28rem" ratio="4 / 3" />
+      <div class="page-cote-collant">
+        <EncartContact prestation={d.nom} />
+      </div>
+    </div>
+  </div>
+
+  <div class="enveloppe page-suite">
+    <section aria-labelledby="titre-ou">
+      <h2 id="titre-ou">Où intervenons-nous pour {d.nom.toLowerCase()} ?</h2>
+      <p class="page-intro-liste">Depuis Louer, dans les Landes et les départements voisins. Chaque secteur a ses essences, ses sols et ses règles de débroussaillement.</p>
+      <ListeSecteurs secteurs={tousSecteurs} />
+    </section>
+
+    {guidesLies.length > 0 && (
+      <section aria-labelledby="titre-guides-lies">
+        <h2 id="titre-guides-lies">À lire avant d'intervenir</h2>
+        <ul class="liens-lies">
+          {guidesLies.map((g) => (
+            <li><a href={`/guides/${g.id}/`}>{g.data.nom}</a><p>{g.data.resume}</p></li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </div>
+
+  <div class="enveloppe page-fin">
+    <Faq faq={d.faq} />
+    {connexes.length > 0 && (
+      <section aria-labelledby="titre-connexes">
+        <h2 id="titre-connexes">Prestations souvent associées</h2>
+        <ul class="liens-lies">
+          {connexes.map((c) => (
+            <li><a href={`/${c.id}/`}>{c.data.nom}</a><p>{c.data.accroche}</p></li>
+          ))}
+        </ul>
+      </section>
+    )}
+    <Sources sources={d.sources} />
+  </div>
+</Base>

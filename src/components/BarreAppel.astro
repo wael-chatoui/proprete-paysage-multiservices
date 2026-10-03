@@ -1,0 +1,61 @@
+---
+// Barre d'actions fixée en bas de l'écran sur mobile : appel, SMS, e-mail.
+import Icone from './Icone.astro';
+import { telHref, smsDevis, mailtoDevis } from '../data/business';
+
+interface Props {
+  prestation?: string;
+}
+const { prestation } = Astro.props;
+---
+<nav class="barre-appel" aria-label="Nous contacter">
+  <a href={telHref}><Icone nom="tel" /><span>Appeler</span></a>
+  <a href={smsDevis(prestation)}><Icone nom="sms" /><span>SMS</span></a>
+  <a href={mailtoDevis(prestation)}><Icone nom="mail" /><span>E-mail</span></a>
+</nav>
+
+<style>
+  .barre-appel {
+    display: none;
+  }
+  @media (max-width: 52rem) {
+    .barre-appel {
+      position: fixed;
+      inset: auto 0 0 0;
+      z-index: 30;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr;
+      background: var(--pin);
+      padding-bottom: env(safe-area-inset-bottom);
+      box-shadow: 0 -1px 0 rgb(255 255 255 / 0.15);
+    }
+    .barre-appel a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--s-2);
+      min-height: 3.5rem;
+      color: var(--papier);
+      text-decoration: none;
+      font-family: var(--f-titre);
+      font-stretch: 85%;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .barre-appel a + a {
+      border-left: 1px solid rgb(255 255 255 / 0.2);
+    }
+    .barre-appel a:first-child span {
+      background: var(--trait) no-repeat 0 100% / 100% 0.35em;
+      padding-bottom: 0.1em;
+    }
+    .barre-appel :global(svg) {
+      width: 1.2em;
+      height: 1.2em;
+      flex: none;
+    }
+    :global(body) {
+      padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+    }
+  }
+</style>

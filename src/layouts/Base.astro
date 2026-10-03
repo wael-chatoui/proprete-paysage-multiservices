@@ -1,0 +1,108 @@
+---
+import '../styles/global.css';
+import Entete from '../components/Entete.astro';
+import Pied from '../components/Pied.astro';
+import BarreAppel from '../components/BarreAppel.astro';
+import { business } from '../data/business';
+import { prestations, secteursConfirmes, refs } from '../lib/contenu';
+import { noeudEntreprise, noeudSite, noeudPage, noeudAriane, url, type Miette } from '../lib/schema';
+
+interface Props {
+  titre: string;
+  description: string;
+  // Clé de l'image Open Graph générée dans /og/<cle>.png
+  og?: string;
+  miettes?: Miette[];
+  noeuds?: (object | null)[];
+  typePage?: string;
+  principal?: string;
+  dateModified?: string;
+  datePublished?: string;
+  noindex?: boolean;
+  prestation?: string;
+}
+const {
+  titre,
+  description,
+  og = 'accueil',
+  miettes = [],
+  noeuds = [],
+  typePage,
+  principal,
+  dateModified,
+  datePublished,
+  noindex = false,
+  prestation,
+} = Astro.props;
+
+const chemin = Astro.url.pathname;
+const canonique = url(chemin);
+const image = url(`/og/${og}.png`);
+const SUFFIXE = ` | ${business.nom}`;
+const titreComplet = titre.includes(business.nom) || titre.length + SUFFIXE.length > 62 ? titre : titre + SUFFIXE;
+
+const listeAriane: Miette[] = miettes.length ? [{ nom: 'Accueil', chemin: '/' }, ...miettes] : [{ nom: 'Accueil', chemin: '/' }];
+
+const graphe = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    noeudSite(),
+    noeudEntreprise(refs(await prestations()), refs(await secteursConfirmes())),
+    noeudPage({ chemin, titre, description, type: typePage, dateModified, datePublished, image, principal }),
+    noeudAriane(chemin, listeAriane),
+    ...noeuds.filter(Boolean),
+  ],
+};
+---
+<!doctype html>
+<html lang="fr-FR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titreComplet}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonique} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    {!noindex && <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />}
+
+    <link rel="preload" href="/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/literata.woff2" as="font" type="font/woff2" crossorigin />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#1e3a2b" />
+
+    <meta property="og:type" content={typePage === 'Article' ? 'article' : 'website'} />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content={business.nom} />
+    <meta property="og:title" content={titre} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonique} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={titre} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="geo.region" content="FR-40" />
+    <meta name="geo.placename" content={business.adresse.ville} />
+    <meta name="geo.position" content={`${business.geo.lat};${business.geo.lon}`} />
+    <meta name="ICBM" content={`${business.geo.lat}, ${business.geo.lon}`} />
+
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="Résumé du site pour les assistants IA" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(graphe)} />
+  </head>
+  <body>
+    <a class="lien-evitement" href="#contenu">Aller au contenu</a>
+    <Entete />
+    <main id="contenu">
+      <slot />
+    </main>
+    <Pied />
+    <BarreAppel prestation={prestation} />
+  </body>
+</html>

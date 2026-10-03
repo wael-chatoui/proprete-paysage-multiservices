@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro';
+import Bandeau from '../components/Bandeau.astro';
+import FicheEntreprise from '../components/FicheEntreprise.astro';
+import EncartContact from '../components/EncartContact.astro';
+import { business, ENTITE } from '../data/business';
+import { prestations, secteurs } from '../lib/contenu';
+import { ID } from '../lib/schema';
+
+const listePrestations = await prestations();
+const tousSecteurs = await secteurs();
+const communes = tousSecteurs.flatMap((s) => s.data.communes);
+const km = (nom: string) => communes.find((c) => c.nom === nom)?.km;
+const dax = km('Dax');
+const mdm = km('Mont-de-Marsan');
+const miettes = [{ nom: "L'entreprise", chemin: '/entreprise/' }];
+---
+<Base
+  titre="Qui sommes-nous ? Propreté Paysage Multiservice, Louer"
+  description="Entreprise individuelle de travaux forestiers et d'entretien d'espaces verts créée en 2026 à Louer (Landes). SIRET 100 386 564 00015."
+  og="entreprise"
+  miettes={miettes}
+  typePage="AboutPage"
+  principal={ID.entreprise}
+>
+  <Bandeau h1="Propreté Paysage Multiservice, travaux forestiers à Louer (40)" accroche={ENTITE} miettes={miettes} />
+
+  <div class="enveloppe page-grille">
+    <div class="prose page-texte">
+      <h2>Que fait l'entreprise ?</h2>
+      <p>Elle prend en charge les arbres et les terrains, de la coupe à la remise en propreté : abattage et bûcheronnage, élagage, débardage des bois, débroussaillage (dont les obligations légales autour des maisons), entretien de jardins et nettoyage de terrains.</p>
+      <ul>
+        {listePrestations.map((p) => <li><a href={`/${p.id}/`}>{p.data.nom}</a> : {p.data.accroche}</li>)}
+      </ul>
+
+      <h2>Où se trouve-t-elle ?</h2>
+      <p>Le siège est à Louer, commune de la communauté de communes Terres de Chalosse{dax && mdm ? `, à ${dax} km de Dax et ${mdm} km de Mont-de-Marsan par la route` : ''}. Cette position centrale permet de rayonner dans tout le département et au-delà.</p>
+      <p>Les secteurs couverts sont décrits un par un, avec leurs communes, leurs essences et leurs règles de débroussaillement, sur la page <a href="/secteurs/">zone d'intervention</a>.</p>
+
+      <h2>Depuis quand existe-t-elle ?</h2>
+      <p>{business.nom} est une entreprise individuelle immatriculée au registre du commerce et des sociétés de Dax, créée le 7 février 2026.</p>
+
+      <h2>Comment la contacter ?</h2>
+      <p>Par téléphone ou SMS au <a href={`tel:${business.telephone.international}`}>{business.telephone.affichage}</a>, ou par e-mail à <a href={`mailto:${business.email}`}>{business.email}</a>. Des photos de l'arbre ou du terrain, avec la commune et les conditions d'accès, permettent de préparer le devis.</p>
+    </div>
+    <div class="page-cote"><div class="page-cote-collant"><EncartContact /></div></div>
+  </div>
+
+  <div class="enveloppe page-fin">
+    <FicheEntreprise />
+  </div>
+</Base>

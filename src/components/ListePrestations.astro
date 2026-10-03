@@ -1,0 +1,62 @@
+---
+// Prestations en liste : le nom condensé, une phrase, et un trait de marquage au survol.
+import type { CollectionEntry } from 'astro:content';
+interface Props {
+  prestations: CollectionEntry<'prestations'>[];
+  titreNiveau?: 'h2' | 'h3';
+}
+const { prestations, titreNiveau = 'h3' } = Astro.props;
+const Titre = titreNiveau;
+// Dans une liste, la mention de zone répétée à chaque ligne alourdit la lecture.
+const court = (a: string) => a.replace(/,? dans les Landes et les départements voisins, depuis Louer\.$/, '.');
+---
+<ul class="prestations">
+  {prestations.map((p) => (
+    <li>
+      <a href={`/${p.id}/`}>
+        <Titre class="prestation-nom">{p.data.nom}</Titre>
+        <p>{court(p.data.accroche)}</p>
+      </a>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .prestations {
+    list-style: none;
+    padding: 0;
+    border-top: 2px solid var(--pin);
+  }
+  .prestations li {
+    border-bottom: 1px solid var(--filet);
+  }
+  .prestations a {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: var(--s-2) var(--s-6);
+    align-items: baseline;
+    padding-block: var(--s-5);
+    text-decoration: none;
+  }
+  .prestation-nom {
+    font-size: var(--t-3);
+    font-stretch: 72%;
+    justify-self: start;
+    padding-bottom: 0.08em;
+    background: var(--trait) no-repeat 0 100% / 0 0.22em;
+    transition: background-size 0.35s cubic-bezier(0.3, 0.7, 0.2, 1);
+  }
+  .prestations a:hover .prestation-nom,
+  .prestations a:focus-visible .prestation-nom {
+    background-size: 100% 0.22em;
+  }
+  .prestations p {
+    color: var(--texte-doux);
+    max-width: 52ch;
+  }
+  @media (max-width: 52rem) {
+    .prestations a {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
