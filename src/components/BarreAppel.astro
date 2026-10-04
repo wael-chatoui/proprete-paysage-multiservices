@@ -1,5 +1,5 @@
 ---
-// Barre d'actions fixée en bas de l'écran sur mobile : appel, SMS, e-mail.
+// Barre d'actions fixée en bas de l'écran sur mobile : appel en orange signalisation, SMS et e-mail en vert pin sobre.
 import Icone from './Icone.astro';
 import { telHref, smsDevis, mailtoDevis } from '../data/business';
 
@@ -9,9 +9,18 @@ interface Props {
 const { prestation } = Astro.props;
 ---
 <nav class="barre-appel" aria-label="Nous contacter">
-  <a href={telHref}><Icone nom="tel" /><span>Appeler</span></a>
-  <a href={smsDevis(prestation)}><Icone nom="sms" /><span>SMS</span></a>
-  <a href={mailtoDevis(prestation)}><Icone nom="mail" /><span>E-mail</span></a>
+  <a class="barre-action-principale" href={telHref}>
+    <Icone nom="tel" />
+    <span>Appeler</span>
+  </a>
+  <a class="barre-action-secondaire" href={smsDevis(prestation)}>
+    <Icone nom="sms" />
+    <span>SMS</span>
+  </a>
+  <a class="barre-action-secondaire" href={mailtoDevis(prestation)}>
+    <Icone nom="mail" />
+    <span>E-mail</span>
+  </a>
 </nav>
 
 <style>
@@ -25,9 +34,9 @@ const { prestation } = Astro.props;
       z-index: 30;
       display: grid;
       grid-template-columns: 1.4fr 1fr 1fr;
-      background: var(--pin);
+      background: var(--pin-profond);
       padding-bottom: env(safe-area-inset-bottom);
-      box-shadow: 0 -1px 0 rgb(255 255 255 / 0.15);
+      box-shadow: 0 -2px 12px rgb(0 0 0 / 0.2);
     }
     .barre-appel a {
       display: flex;
@@ -35,19 +44,31 @@ const { prestation } = Astro.props;
       justify-content: center;
       gap: var(--s-2);
       min-height: 3.5rem;
-      color: var(--papier);
       text-decoration: none;
       font-family: var(--f-titre);
       font-stretch: 85%;
       font-weight: 700;
       font-size: 1.05rem;
+      transition: background-color 0.15s ease;
     }
-    .barre-appel a + a {
-      border-left: 1px solid rgb(255 255 255 / 0.2);
+    .barre-action-principale {
+      background: var(--orange-signal);
+      color: #ffffff;
     }
-    .barre-appel a:first-child span {
-      background: var(--trait) no-repeat 0 100% / 100% 0.35em;
-      padding-bottom: 0.1em;
+    .barre-action-principale:hover,
+    .barre-action-principale:active {
+      background: var(--orange-signal-survol);
+    }
+    .barre-action-secondaire {
+      background: var(--pin-profond);
+      color: #ffffff;
+    }
+    .barre-action-secondaire:hover,
+    .barre-action-secondaire:active {
+      background: var(--pin);
+    }
+    .barre-action-secondaire + .barre-action-secondaire {
+      border-left: 1px solid rgb(255 255 255 / 0.18);
     }
     .barre-appel :global(svg) {
       width: 1.2em;

@@ -13,7 +13,13 @@ export type Photo = {
 
 export const photos: Record<string, Photo> = {
   accueil: { alt: 'Futaie de pins maritimes dans la forêt des Landes, un tronc marqué de peinture rose', type: 'ia' },
-  'abattage-arbres': { alt: "Abattage d'un pin maritime avec équipements de protection", type: 'ia' },
+  'abattage-arbres': {
+    alt: "Vérification de l'orientation du cran de chute lors d'un chantier d'abattage",
+    type: 'stock',
+    credit: 'Moinats / Wikimedia Commons',
+    licence: { nom: 'CC BY-SA 4.0', url: 'https://creativecommons.org/licenses/by-sa/4.0/' },
+    source: 'https://commons.wikimedia.org/wiki/File:V%C3%A9rification_orientation_cran_de_chute.jpg',
+  },
   elagage: { alt: 'Élagueur encordé dans un chêne, casque et équipements de protection', type: 'ia' },
   debardage: { alt: 'Grumes de pin maritime empilées en bord de piste forestière', type: 'ia' },
   debroussaillage: { alt: 'Sous-bois débroussaillé autour de pins maritimes', type: 'ia' },

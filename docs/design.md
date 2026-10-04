@@ -66,7 +66,7 @@ Notes de conception, rédigées en suivant le skill `frontend-design`.
 
 ## Historique des essais
 
-- v1 (2 octobre 2026) : tokens ci-dessus.
+- v1 (2 octobre 2026) : tokens initiaux.
 - v2 (2 octobre 2026), après relecture sur captures d'écran :
   - **Carte** : échelle portée à 4,2 unités par km et cadre resserré. Les secteurs sont presque tous à moins de 60 km à vol d'oiseau, et les étiquettes étaient illisibles (environ 9 px). Elles sont passées à 22 unités, et l'étiquette du Pays d'Orthe est placée sous son point.
   - **Mobile** : les icônes de la barre d'appel étaient démesurées. Le style était limité au composant parent : il passe en `:global(svg)`. L'emplacement photo de l'accueil est masqué tant qu'aucune image n'est déposée.
@@ -74,3 +74,23 @@ Notes de conception, rédigées en suivant le skill `frontend-design`.
 - v3 (2 octobre 2026), performance :
   - **Polices** : réduites avec fonttools (`varLib.instancer` puis `pyftsubset`) aux plages réellement utilisées : Archivo en graisse 500–900 et largeur 62–100 %, Literata en graisse 400–700 et taille optique 12–36. Seuls les caractères du français sont conservés. Archivo passe de 90 à 55 Ko, Literata de 110 à 54 Ko.
   - L'italique n'est plus chargé sur l'accueil : les légendes de la carte sont en Archivo droit.
+- v4 (4 octobre 2026), refonte de l'identité & conversion :
+  - **Palette stricte avec rôles réservés** :
+    - `--pin-profond` (`#12241b`) : matière forestière sombre, typographie de labeur, contrastes maximaux et fonds d'en-tête/barre basse.
+    - `--pin` (`#1e3a2b`) : vert pin maritime identitaire, réservé aux grands aplats d'ouverture (hero accueil et bandeaux).
+    - `--marquage` (`#ff2e7e`) : rose de marquage forestier fluorescent. Signature identitaire exclusive : trait de peinture animé sous le numéro géant, focus visible, liserés fins. STRICTEMENT JAMAIS en fond de bouton plein ni en texte courant.
+    - `--orange-signal` (`#c84d02` / survol `#b33f00`) : orange haute visibilité inspiré des EPI de bûcheronnage. Réservé exclusivement à l'action primaire d'appel direct immédiat (`tel:`). Ratio de contraste conforme WCAG AA (4.65:1 sur blanc).
+    - `--fond-clair` (`#ffffff`) : surface principale de lecture.
+    - `--fond-doux` (`#f4f6f4`) : teinte d'arrière-plan neutre et reposante pour les respirations de page et les encarts secondaires.
+  - **Hiérarchie stricte des 3 CTA** :
+    1. *Primaire (Orange signal)* : Appel direct d'un tapotement (`tel:`), destiné à l'urgence, aux chablis post-tempête ou au besoin immédiat.
+    2. *Secondaire (Contour blanc / bouton pin)* : Envoi direct de photos par SMS (`sms:`), méthode reine pour diagnostiquer un arbre ou un chantier sans déplacement inutile.
+    3. *Tertiaire (Lien textuel discret / bouton doux)* : Formulaire ou e-mail (`mailto:`), pour les demandes écrites formelles et les pièces jointes volumineuses.
+  - **Composants d'accès permanent** :
+    - *Sticky header desktop compact* : bandeau supérieur discret restant accessible au scroll, intégrant logo, navigation et bouton d'appel direct orange.
+    - *Barre mobile bicolore* : fixée en bas d'écran avec prise en compte du `safe-area-inset-bottom`. Division bicolore 1.4fr (bouton orange d'appel) + 1fr (SMS) + 1fr (E-mail).
+  - **Hero d'accueil immersif à 2 colonnes** :
+    - Grille asymétrique (1.35fr texte / 1fr visuel) au ratio 16:10.
+    - Numéro de téléphone géant souligné d'un tracé SVG vectoriel fluide qui reproduit le geste du trait de peinture forestière avec une animation progressive de gauche à droite.
+  - **Bandeaux hero immersifs sur les prestations** :
+    - Intégration systématique de photographies contextuelles de chantiers réels (abattage, débardage, débroussailleuse) dans le composant `Bandeau.astro`, avec fil d'Ariane et encart de contact direct.

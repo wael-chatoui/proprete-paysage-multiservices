@@ -2,8 +2,8 @@
 import { render } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Bandeau from '../components/Bandeau.astro';
-import Photo from '../components/Photo.astro';
 import EncartContact from '../components/EncartContact.astro';
+import AppelIntermediaire from '../components/AppelIntermediaire.astro';
 import Faq from '../components/Faq.astro';
 import Sources from '../components/Sources.astro';
 import ListeSecteurs from '../components/ListeSecteurs.astro';
@@ -43,20 +43,32 @@ const miettes = [
     noeudFaq(chemin, d.faq),
   ]}
 >
-  <Bandeau h1={d.h1} accroche={d.accroche} miettes={miettes} dateModified={d.dateModified} />
+  <Bandeau h1={d.h1} accroche={d.accroche} miettes={miettes} dateModified={d.dateModified} photo={p.id} />
 
   <div class="enveloppe page-grille">
     <article class="prose page-texte">
       <Content />
+      <AppelIntermediaire prestation={d.nom} />
     </article>
 
     <div class="page-cote">
-      <Photo nom={p.id} sizes="(max-width: 60rem) 100vw, 28rem" ratio="4 / 3" />
       <div class="page-cote-collant">
         <EncartContact prestation={d.nom} />
       </div>
     </div>
   </div>
+
+  <script is:inline>
+    (() => {
+      const appel = document.querySelector('.appel-intermediaire');
+      const h2s = document.querySelectorAll('.page-texte h2');
+      if (appel && h2s.length >= 2) {
+        const indexMilieu = Math.floor(h2s.length / 2);
+        const cible = h2s[indexMilieu];
+        cible.parentNode?.insertBefore(appel, cible);
+      }
+    })();
+  </script>
 
   <div class="enveloppe page-suite">
     <section aria-labelledby="titre-ou">

@@ -38,16 +38,25 @@
 }
 
 :root {
-  /* Couleurs (docs/design.md) */
+  /* Couleurs de base : matière forestière dense des Landes */
+  --pin-profond: #12241b; /* matière forestière dense, textes et aplats sombres */
   --pin: #1e3a2b;
   --pin-clair: #2e5642;
   --sable: #e6dab8;
   --ecorce: #5e4232;
-  --papier: #ffffff;
-  --marquage: #ff2e7e;
+  --fond-clair: #ffffff;
+  --fond-doux: #f4f6f4;
+  --papier: var(--fond-clair); /* Compatibilité avec les gabarits existants */
 
-  --texte: var(--pin);
-  --texte-doux: #4b5f53;
+  /* Identité & signalétique */
+  --marquage: #ff2e7e; /* Signature identitaire exclusive : trait de peinture sous le numéro géant, liserés subtils. STRICTEMENT JAMAIS en fond de bouton plein ni en texte courant */
+  --orange-signal: #c84d02; /* Action et sécurité, réservé au bouton d'appel direct primaire. Rappel des EPI forestiers. Contraste WCAG AA vérifié avec texte blanc #ffffff >= 4.5:1 (ratio 4.65:1) */
+  --orange-signal-survol: #b33f00;
+  --orange-signal-focus: #f48c06;
+
+  /* Typographie & surfaces */
+  --texte: var(--pin-profond);
+  --texte-doux: #3d5245;
   --filet: #cfd8d1;
   --fond-tableau: var(--sable);
 
@@ -99,7 +108,7 @@ html {
 
 body {
   margin: 0;
-  background: var(--papier);
+  background: var(--fond-clair);
   color: var(--texte);
   font-family: var(--f-texte);
   font-size: var(--t-0);
@@ -222,13 +231,20 @@ a:hover {
 }
 
 /* Boutons et liens d'action */
-.action {
+.action,
+.btn-primaire,
+.action-primaire,
+.action-orange,
+.btn-secondaire,
+.action-secondaire,
+.btn-tertiaire,
+.action-tertiaire {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--s-2);
   min-height: 48px;
   padding: var(--s-2) var(--s-5);
-  border: 2px solid currentColor;
   border-radius: var(--rayon);
   font-family: var(--f-titre);
   font-stretch: 85%;
@@ -236,20 +252,121 @@ a:hover {
   font-size: var(--t-0);
   line-height: 1.1;
   text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
 }
-.action:hover {
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-}
-.action-plein {
-  background: var(--pin);
-  border-color: var(--pin);
-  color: var(--papier);
-}
-.action svg {
+
+.action svg,
+.btn-primaire svg,
+.action-primaire svg,
+.action-orange svg,
+.btn-secondaire svg,
+.action-secondaire svg,
+.btn-tertiaire svg,
+.action-tertiaire svg {
   width: 1.15em;
   height: 1.15em;
   flex: none;
+}
+
+/* Action primaire (CTA prioritaire, appel direct, urgence sécurité) */
+.btn-primaire,
+.action-primaire,
+.action-orange,
+.action-plein[href^="tel:"] {
+  background: var(--orange-signal);
+  border: 2px solid var(--orange-signal);
+  color: #ffffff;
+}
+
+.btn-primaire:hover,
+.action-primaire:hover,
+.action-orange:hover,
+.action-plein[href^="tel:"]:hover {
+  background: var(--orange-signal-survol);
+  border-color: var(--orange-signal-survol);
+  color: #ffffff;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgb(232 93 4 / 0.28);
+}
+
+.btn-primaire:active,
+.action-primaire:active,
+.action-orange:active,
+.action-plein[href^="tel:"]:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.btn-primaire:focus-visible,
+.action-primaire:focus-visible,
+.action-orange:focus-visible,
+.action-plein[href^="tel:"]:focus-visible {
+  outline: 3px solid var(--orange-signal-focus);
+  outline-offset: 3px;
+}
+
+/* Action pleine neutre (rétro-compatibilité totale et actions principales neutres) */
+.action-plein {
+  background: var(--pin);
+  border: 2px solid var(--pin);
+  color: #ffffff;
+}
+
+.action-plein:hover {
+  background: var(--pin-clair);
+  border-color: var(--pin-clair);
+  color: #ffffff;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.action-plein:active {
+  transform: translateY(0);
+}
+
+/* Action secondaire (bouton contour, fond transparent, font-weight 700) */
+.btn-secondaire,
+.action-secondaire,
+.action:not(.action-plein):not(.action-primaire):not(.btn-primaire):not(.action-orange):not(.btn-tertiaire):not(.action-tertiaire) {
+  border: 2px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+}
+
+.btn-secondaire:hover,
+.action-secondaire:hover,
+.action:not(.action-plein):not(.action-primaire):not(.btn-primaire):not(.action-orange):not(.btn-tertiaire):not(.action-tertiaire):hover {
+  background: rgb(18 36 27 / 0.08);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.btn-secondaire:active,
+.action-secondaire:active,
+.action:not(.action-plein):not(.action-primaire):not(.btn-primaire):not(.action-orange):not(.btn-tertiaire):not(.action-tertiaire):active {
+  transform: translateY(0);
+}
+
+/* Action tertiaire (lien ou bouton sobre sans fond lourd) */
+.btn-tertiaire,
+.action-tertiaire {
+  background: transparent;
+  border: 2px solid transparent;
+  color: inherit;
+  min-height: 44px;
+  padding: var(--s-1) var(--s-3);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  font-weight: 600;
+}
+
+.btn-tertiaire:hover,
+.action-tertiaire:hover {
+  background: rgb(18 36 27 / 0.06);
+  text-decoration-thickness: 2px;
 }
 
 /* Texte long issu du Markdown */
@@ -410,6 +527,243 @@ a:hover {
     }
   }
 
+/* ==========================================================================
+   En-tête collant et compact au défilement (desktop)
+   ========================================================================== */
+@media (min-width: 68rem) {
+  header.entete-collante,
+  header.entete.est-collee,
+  header.entete[data-colle="true"],
+  header.entete.is-sticky,
+  header.entete-compacte,
+  header.header-sticky,
+  .entete-collante,
+  .entete.est-collee,
+  .entete[data-colle="true"],
+  .entete.is-sticky,
+  .entete-compacte,
+  .header-sticky {
+    position: sticky !important;
+    top: 0;
+    z-index: 50;
+    background: var(--pin-profond) !important;
+    color: #ffffff !important;
+    border-bottom: 1px solid rgb(255 255 255 / 0.12) !important;
+    box-shadow: 0 4px 20px rgb(0 0 0 / 0.15) !important;
+    transition: min-height 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  header.entete-collante .entete-ligne,
+  header.entete.est-collee .entete-ligne,
+  header.entete[data-colle="true"] .entete-ligne,
+  header.entete.is-sticky .entete-ligne,
+  header.entete-compacte .entete-ligne,
+  header.header-sticky .entete-ligne,
+  .entete-collante .entete-ligne,
+  .entete.est-collee .entete-ligne,
+  .entete[data-colle="true"] .entete-ligne,
+  .entete.is-sticky .entete-ligne,
+  .entete-compacte .entete-ligne,
+  .header-sticky .entete-ligne {
+    min-height: 3.5rem !important; /* ~56px */
+    gap: var(--s-4);
+    transition: min-height 0.25s ease;
+  }
+
+  header.entete-collante .entete-nom,
+  header.entete.est-collee .entete-nom,
+  header.entete[data-colle="true"] .entete-nom,
+  header.entete.is-sticky .entete-nom,
+  header.entete-compacte .entete-nom,
+  header.header-sticky .entete-nom,
+  .entete-collante .entete-nom,
+  .entete.est-collee .entete-nom,
+  .entete[data-colle="true"] .entete-nom,
+  .entete.is-sticky .entete-nom,
+  .entete-compacte .entete-nom,
+  .header-sticky .entete-nom {
+    color: #ffffff !important;
+  }
+
+  header.entete-collante .entete-nom svg path,
+  header.entete.est-collee .entete-nom svg path,
+  header.entete[data-colle="true"] .entete-nom svg path,
+  header.entete.is-sticky .entete-nom svg path,
+  header.entete-compacte .entete-nom svg path,
+  header.header-sticky .entete-nom svg path,
+  .entete-collante .entete-nom svg path,
+  .entete.est-collee .entete-nom svg path,
+  .entete[data-colle="true"] .entete-nom svg path,
+  .entete.is-sticky .entete-nom svg path,
+  .entete-compacte .entete-nom svg path,
+  .header-sticky .entete-nom svg path {
+    stroke: #ffffff;
+  }
+
+  header.entete-collante .entete-nom svg circle,
+  header.entete.est-collee .entete-nom svg circle,
+  header.entete[data-colle="true"] .entete-nom svg circle,
+  header.entete.is-sticky .entete-nom svg circle,
+  header.entete-compacte .entete-nom svg circle,
+  header.header-sticky .entete-nom svg circle,
+  .entete-collante .entete-nom svg circle,
+  .entete.est-collee .entete-nom svg circle,
+  .entete[data-colle="true"] .entete-nom svg circle,
+  .entete.is-sticky .entete-nom svg circle,
+  .entete-compacte .entete-nom svg circle,
+  .header-sticky .entete-nom svg circle {
+    fill: #ffffff;
+  }
+
+  header.entete-collante .entete-sous,
+  header.entete.est-collee .entete-sous,
+  header.entete[data-colle="true"] .entete-sous,
+  header.entete.is-sticky .entete-sous,
+  header.entete-compacte .entete-sous,
+  header.header-sticky .entete-sous,
+  .entete-collante .entete-sous,
+  .entete.est-collee .entete-sous,
+  .entete[data-colle="true"] .entete-sous,
+  .entete.is-sticky .entete-sous,
+  .entete-compacte .entete-sous,
+  .header-sticky .entete-sous {
+    color: rgb(255 255 255 / 0.72) !important;
+  }
+
+  header.entete-collante .entete-nav a,
+  header.entete.est-collee .entete-nav a,
+  header.entete[data-colle="true"] .entete-nav a,
+  header.entete.is-sticky .entete-nav a,
+  header.entete-compacte .entete-nav a,
+  header.header-sticky .entete-nav a,
+  .entete-collante .entete-nav a,
+  .entete.est-collee .entete-nav a,
+  .entete[data-colle="true"] .entete-nav a,
+  .entete.is-sticky .entete-nav a,
+  .entete-compacte .entete-nav a,
+  .header-sticky .entete-nav a {
+    color: #ffffff !important;
+  }
+
+  header.entete-collante .entete-nav a:hover,
+  header.entete-collante .entete-nav a[aria-current='page'],
+  header.entete.est-collee .entete-nav a:hover,
+  header.entete.est-collee .entete-nav a[aria-current='page'],
+  header.entete[data-colle="true"] .entete-nav a:hover,
+  header.entete[data-colle="true"] .entete-nav a[aria-current='page'],
+  header.entete.is-sticky .entete-nav a:hover,
+  header.entete.is-sticky .entete-nav a[aria-current='page'],
+  header.entete-compacte .entete-nav a:hover,
+  header.entete-compacte .entete-nav a[aria-current='page'],
+  header.header-sticky .entete-nav a:hover,
+  header.header-sticky .entete-nav a[aria-current='page'],
+  .entete-collante .entete-nav a:hover,
+  .entete-collante .entete-nav a[aria-current='page'],
+  .entete.est-collee .entete-nav a:hover,
+  .entete.est-collee .entete-nav a[aria-current='page'],
+  .entete[data-colle="true"] .entete-nav a:hover,
+  .entete[data-colle="true"] .entete-nav a[aria-current='page'],
+  .entete.is-sticky .entete-nav a:hover,
+  .entete.is-sticky .entete-nav a[aria-current='page'],
+  .entete-compacte .entete-nav a:hover,
+  .entete-compacte .entete-nav a[aria-current='page'],
+  .header-sticky .entete-nav a:hover,
+  .header-sticky .entete-nav a[aria-current='page'] {
+    background: var(--trait) no-repeat 0 100% / 100% 0.32em;
+  }
+
+  header.entete-collante .entete-appel,
+  header.entete.est-collee .entete-appel,
+  header.entete[data-colle="true"] .entete-appel,
+  header.entete.is-sticky .entete-appel,
+  header.entete-compacte .entete-appel,
+  header.header-sticky .entete-appel,
+  .entete-collante .entete-appel,
+  .entete.est-collee .entete-appel,
+  .entete[data-colle="true"] .entete-appel,
+  .entete.is-sticky .entete-appel,
+  .entete-compacte .entete-appel,
+  .header-sticky .entete-appel {
+    min-height: 40px;
+    padding-inline: var(--s-3);
+    font-size: 0.95rem;
+  }
+}
+
+/* ==========================================================================
+   Animations CSS (100% CSS/SVG, 0 Ko de lib externe, sobres et fluides)
+   ========================================================================== */
+
+/* Tracé progressif du trait de marquage SVG sous le numéro géant */
+@keyframes tracer-trait {
+  from {
+    stroke-dashoffset: 100%;
+  }
+  to {
+    stroke-dashoffset: 0%;
+  }
+}
+
+/* Animation fluide sur l'élément trait ou pseudo-élément */
+@keyframes reveler-trait-element {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.tracer-trait,
+.tracer-trait path,
+.trait-anime path,
+svg.trait-marquage path,
+.numero-trait-svg path {
+  stroke-dasharray: 100%;
+  stroke-dashoffset: 100%;
+  animation: tracer-trait 1.1s cubic-bezier(0.25, 1, 0.5, 1) 0.15s forwards;
+}
+
+.trait-anime,
+.numero-anime-trait,
+.reveler-trait {
+  animation: reveler-trait-element 1.1s cubic-bezier(0.25, 1, 0.5, 1) 0.15s forwards;
+}
+
+/* Dévoilement doux des photographies sans décalage de mise en page (CLS 0) */
+@keyframes devoiler-photo {
+  from {
+    opacity: 0.2;
+    transform: scale(1.015);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.photo {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--fond-doux);
+}
+
+.photo img,
+figure.photo img {
+  /* Maintient les dimensions intrinsèques sans décalage de mise en page (CLS 0) */
+  content-visibility: auto;
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+.photo img[loading="lazy"],
+.photo.photo-reveler img,
+.devoiler-photo {
+  animation: devoiler-photo 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ==========================================================================
+   Accessibilité : respect strict et impératif de la réduction de mouvement
+   ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -418,5 +772,30 @@ a:hover {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .tracer-trait,
+  .tracer-trait path,
+  .trait-anime path,
+  svg.trait-marquage path,
+  .numero-trait-svg path {
+    stroke-dashoffset: 0% !important;
+    animation: none !important;
+  }
+
+  .trait-anime,
+  .numero-anime-trait,
+  .reveler-trait {
+    clip-path: none !important;
+    animation: none !important;
+  }
+
+  .photo img,
+  figure.photo img,
+  .devoiler-photo {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
   }
 }

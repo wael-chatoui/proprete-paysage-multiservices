@@ -1,0 +1,84 @@
+---
+// Bandeau d'appel rapide intermédiaire inséré au milieu des pages de prestations.
+import Icone from './Icone.astro';
+import { business, telHref, smsDevis } from '../data/business';
+
+interface Props {
+  prestation?: string;
+}
+const { prestation } = Astro.props;
+---
+<aside class="appel-intermediaire" aria-label="Contact direct">
+  <div class="appel-intermediaire-texte">
+    <p class="appel-intermediaire-titre">Un doute sur un arbre ou un projet ?</p>
+    <p class="appel-intermediaire-desc">
+      Appelez le <strong>{business.telephone.affichage}</strong> ou envoyez des photos par SMS pour un conseil rapide et sans engagement.
+    </p>
+  </div>
+  <div class="appel-intermediaire-actions">
+    <a class="action btn-primaire" href={telHref}>
+      <Icone nom="tel" />
+      <span>Appeler</span>
+    </a>
+    <a class="action btn-secondaire" href={smsDevis(prestation)}>
+      <Icone nom="sms" />
+      <span>Photos par SMS</span>
+    </a>
+  </div>
+</aside>
+
+<style>
+  .appel-intermediaire {
+    margin-block: var(--s-6);
+    padding: var(--s-5);
+    background: var(--fond-doux);
+    border: 1px solid var(--filet);
+    border-left: 4px solid var(--orange-signal);
+    border-radius: var(--rayon);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4);
+  }
+  .appel-intermediaire-texte {
+    flex: 1 1 20rem;
+    min-width: 0;
+  }
+  .appel-intermediaire-titre {
+    font-family: var(--f-titre);
+    font-stretch: 84%;
+    font-weight: 750;
+    font-size: var(--t-1);
+    color: var(--pin-profond);
+    line-height: 1.2;
+  }
+  .appel-intermediaire-desc {
+    margin-top: var(--s-2);
+    font-size: var(--t--1);
+    color: var(--texte-doux);
+    line-height: 1.45;
+  }
+  .appel-intermediaire-desc strong {
+    color: var(--texte);
+    white-space: nowrap;
+  }
+  .appel-intermediaire-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-3);
+  }
+  .appel-intermediaire-actions .action {
+    font-size: 0.95rem;
+    min-height: 44px;
+    padding-inline: var(--s-4);
+  }
+  .appel-intermediaire-actions .btn-secondaire {
+    border-color: var(--pin);
+    color: var(--pin-profond);
+  }
+  .appel-intermediaire-actions .btn-secondaire:hover {
+    background: rgba(18, 36, 27, 0.08);
+  }
+</style>

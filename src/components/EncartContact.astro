@@ -1,7 +1,8 @@
 ---
-// Encart de contact des pages intérieures : appel en premier, puis SMS et e-mail pré-remplis.
+// Encart de contact des pages intérieures : appel direct prioritaire, SMS et e-mail.
 import Icone from './Icone.astro';
 import { business, telHref, smsDevis, mailtoDevis } from '../data/business';
+
 interface Props {
   prestation?: string;
   titre?: string;
@@ -10,11 +11,25 @@ const { prestation, titre = 'Un devis pour votre chantier' } = Astro.props;
 ---
 <aside class="encart" aria-labelledby="encart-titre">
   <h2 id="encart-titre">{titre}</h2>
-  <a class="encart-numero" href={telHref}><span class="visuellement-cache">Appeler le </span>{business.telephone.affichage}</a>
-  <p>Ou envoyez des photos avec la commune et l'accès :</p>
+  <a class="encart-numero" href={telHref}>
+    <span class="visuellement-cache">Appeler le </span>{business.telephone.affichage}
+  </a>
+
+  <a class="action btn-primaire encart-appel" href={telHref}>
+    <Icone nom="tel" />
+    <span>Appeler le {business.telephone.affichage}</span>
+  </a>
+
+  <p class="encart-legende">Ou envoyez des photos avec la commune et l'accès :</p>
   <div class="encart-actions">
-    <a class="action" href={smsDevis(prestation)}><Icone nom="sms" />SMS</a>
-    <a class="action" href={mailtoDevis(prestation)}><Icone nom="mail" />E-mail</a>
+    <a class="action btn-secondaire" href={smsDevis(prestation)}>
+      <Icone nom="sms" />
+      <span>Envoyer des photos par SMS</span>
+    </a>
+    <a class="action btn-tertiaire" href={mailtoDevis(prestation)}>
+      <Icone nom="mail" />
+      <span>Écrire un e-mail</span>
+    </a>
   </div>
 </aside>
 
@@ -42,20 +57,44 @@ const { prestation, titre = 'Un devis pour votre chantier' } = Astro.props;
     font-variant-numeric: tabular-nums;
     padding-bottom: 0.12em;
     background: var(--trait) no-repeat 0 100% / 100% 0.2em;
+    color: var(--texte);
   }
-  .encart p {
+  .encart-numero:hover,
+  .encart-numero:focus-visible {
+    background-size: 100% 0.32em;
+  }
+  .encart-appel {
+    width: 100%;
+    margin-top: var(--s-4);
+    font-size: 1rem;
+    padding-inline: var(--s-3);
+    justify-content: center;
+  }
+  .encart p.encart-legende {
     margin-top: var(--s-4);
     font-size: var(--t--1);
     color: var(--texte-doux);
+    line-height: 1.45;
   }
   .encart-actions {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--s-3);
+    flex-direction: column;
+    gap: var(--s-2);
     margin-top: var(--s-3);
   }
   .encart-actions .action {
-    font-size: 1rem;
-    padding-inline: var(--s-4);
+    width: 100%;
+    justify-content: center;
+    font-size: 0.95rem;
+  }
+  .encart-actions .btn-secondaire {
+    border-color: var(--pin);
+    color: var(--pin-profond);
+  }
+  .encart-actions .btn-secondaire:hover {
+    background: rgba(18, 36, 27, 0.06);
+  }
+  .encart-actions .btn-tertiaire {
+    color: var(--pin-profond);
   }
 </style>

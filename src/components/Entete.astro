@@ -31,7 +31,7 @@ const estActif = (href: string) => actuel === href || (href !== '/' && actuel.st
       </ul>
     </nav>
 
-    <a class="action action-plein entete-appel" href={telHref}>
+    <a class="action btn-primaire entete-appel" href={telHref}>
       <Icone nom="tel" />
       <span>{business.telephone.affichage}</span>
     </a>
@@ -49,18 +49,32 @@ const estActif = (href: string) => actuel === href || (href !== '/' && actuel.st
   </div>
 </header>
 
+<script is:inline>
+  (() => {
+    const entete = document.querySelector('.entete');
+    if (!entete) return;
+    const gererDefilement = () => {
+      entete.classList.toggle('est-collee', window.scrollY > 30);
+    };
+    window.addEventListener('scroll', gererDefilement, { passive: true });
+    gererDefilement();
+  })();
+</script>
+
 <style>
   .entete {
     position: relative;
     z-index: 20;
     background: var(--papier);
     border-bottom: 1px solid var(--filet);
+    transition: background-color 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   }
   .entete-ligne {
     display: flex;
     align-items: center;
     gap: var(--s-5);
     min-height: 4.5rem;
+    transition: min-height 0.25s ease, gap 0.25s ease;
   }
   .entete-nom {
     display: flex;
@@ -68,6 +82,7 @@ const estActif = (href: string) => actuel === href || (href !== '/' && actuel.st
     gap: var(--s-3);
     text-decoration: none;
     margin-right: auto;
+    transition: color 0.25s ease;
   }
   .entete-nom > span {
     display: grid;
@@ -83,6 +98,7 @@ const estActif = (href: string) => actuel === href || (href !== '/' && actuel.st
     font-size: var(--t--1);
     color: var(--texte-doux);
     line-height: 1.3;
+    transition: color 0.25s ease;
   }
   .entete-nav ul,
   .entete-menu ul {
@@ -101,6 +117,7 @@ const estActif = (href: string) => actuel === href || (href !== '/' && actuel.st
     font-weight: 600;
     text-decoration: none;
     padding-block: var(--s-2);
+    transition: color 0.25s ease;
   }
   .entete-nav a:hover,
   .entete-nav a[aria-current='page'] {
@@ -112,6 +129,55 @@ const estActif = (href: string) => actuel === href || (href !== '/' && actuel.st
   }
   .entete-menu {
     display: none;
+  }
+
+  @media (min-width: 68rem) {
+    .entete {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    .entete.est-collee {
+      background: var(--pin-profond);
+      border-bottom: 1px solid rgb(255 255 255 / 0.12);
+      box-shadow: 0 4px 20px rgb(0 0 0 / 0.15);
+    }
+    .entete.est-collee .entete-ligne {
+      min-height: 3.5rem; /* 56px */
+      gap: var(--s-4);
+    }
+    .entete.est-collee .entete-nom {
+      color: #ffffff;
+    }
+    .entete.est-collee .entete-nom :global(.marque g path) {
+      stroke: #ffffff;
+    }
+    .entete.est-collee .entete-nom :global(.marque g circle) {
+      fill: #ffffff;
+    }
+    .entete.est-collee .entete-sous {
+      color: rgb(255 255 255 / 0.75);
+    }
+    .entete.est-collee .entete-nav a {
+      color: #ffffff;
+    }
+    .entete.est-collee .entete-nav a:hover,
+    .entete.est-collee .entete-nav a[aria-current='page'] {
+      background: var(--trait) no-repeat 0 100% / 100% 0.32em;
+    }
+    .entete.est-collee .entete-appel {
+      background: var(--orange-signal);
+      border-color: var(--orange-signal);
+      color: #ffffff;
+      min-height: 40px;
+      padding-inline: var(--s-3);
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
+    }
+    .entete.est-collee .entete-appel:hover {
+      background: var(--orange-signal-survol);
+      border-color: var(--orange-signal-survol);
+    }
   }
 
   @media (max-width: 68rem) {
