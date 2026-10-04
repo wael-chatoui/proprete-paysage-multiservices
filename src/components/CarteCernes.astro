@@ -1,8 +1,9 @@
 ---
 // Carte de la zone d'intervention dessinée comme la coupe d'un tronc : Louer au cœur,
-// un cerne tous les 20 km à vol d'oiseau, les secteurs à leur position réelle.
+// un cerne tous les 20 km à vol d'oiseau, les secteurs et communes à leur position réelle.
 import { business } from '../data/business';
 import { etiquettes, cote, adour } from '../data/carte';
+import { toutesLesCommunes } from '../data/communes';
 
 interface Secteur {
   slug: string;
@@ -28,7 +29,10 @@ const proj = (lat: number, lon: number) => ({
   y: +(-(lat - lat0) * ky * ECHELLE).toFixed(1),
 });
 
-const vb = { x: -330, y: -335, l: 640, h: 565 };
+// ViewBox dézoomée par défaut (100-120 km autour de Louer)
+const vbLarge = { x: -310, y: -380, l: 670, h: 600 };
+// ViewBox zoomée sur le cœur d'activité (50 km autour de Louer)
+const vbZoom = { x: -200, y: -160, l: 380, h: 310 };
 
 // Cernes irréguliers, comme une vraie coupe de bois.
 function cerne(km: number) {
@@ -52,30 +56,86 @@ const ligne = (pts: [number, number][]) =>
     return `${i ? 'L' : 'M'}${p.x},${p.y}`;
   }).join('');
 const traitCote = ligne(cote);
-const ocean = `${traitCote}L${vb.x},${proj(43.37, -1.79).y}L${vb.x},${vb.y}L${proj(44.66, -1.25).x},${vb.y}Z`;
+const ocean = `${traitCote}L${vbLarge.x},${proj(43.37, -1.79).y}L${vbLarge.x},${vbLarge.y}L${proj(44.66, -1.25).x},${vbLarge.y}Z`;
 const traitAdour = ligne(adour);
 
-const points = secteurs.map((s) => {
+const pointsSecteurs = secteurs.map((s) => {
   const p = proj(s.centre.lat, s.centre.lon);
   const e = etiquettes[s.slug] ?? { court: s.nom, cote: 'd' as const };
   return { ...s, ...p, e };
 });
 
+// Étiquettes soignées pour les villes principales
+const etiquettesVilles: Record<string, { court?: string; cote: 'd' | 'g' | 'b' | 'h'; dx?: number; dy?: number }> = {
+  '40088': { court: 'Dax', cote: 'g', dx: -7, dy: 5 },
+  '40279': { court: 'St-Paul', cote: 'g', dx: -6, dy: -5 },
+  '40313': { court: 'Tartas', cote: 'd', dx: 7, dy: -3 },
+  '40192': { court: 'Mont-de-Marsan', cote: 'd', dx: 8, dy: 3 },
+  '40282': { court: 'Saint-Sever', cote: 'd', dx: 8, dy: 4 },
+  '40119': { court: 'Hagetmau', cote: 'd', dx: 8, dy: 4 },
+  '40065': { court: 'Capbreton', cote: 'g', dx: -8, dy: 4 },
+  '40304': { court: 'Hossegor', cote: 'g', dx: -8, dy: -6 },
+  '40310': { court: 'Soustons', cote: 'g', dx: -8, dy: 3 },
+  '40075': { court: 'Castets', cote: 'g', dx: -8, dy: 4 },
+  '40197': { court: 'Morcenx', cote: 'd', dx: 8, dy: 4 },
+  '40184': { court: 'Mimizan', cote: 'g', dx: -8, dy: 4 },
+  '64430': { court: 'Orthez', cote: 'd', dx: 8, dy: 4 },
+  '64499': { court: 'Salies', cote: 'g', dx: -8, dy: 4 },
+  '40224': { court: 'Peyrehorade', cote: 'b', dy: 16 },
+  '64102': { court: 'Bayonne', cote: 'g', dx: -8, dy: 4 },
+  '33036': { court: 'Bazas', cote: 'd', dx: 8, dy: 4 },
+  '33227': { court: 'Langon', cote: 'd', dx: 8, dy: 4 },
+  '40001': { court: 'Aire-sur-l’Adour', cote: 'd', dx: 8, dy: 4 },
+};
+
+const communesProj = toutesLesCommunes
+  .filter((c) => c.insee !== '40159') // Louer est déjà au cœur avec son liseré
+  .map((c) => {
+    const p = proj(c.lat, c.lon);
+    const etiq = etiquettesVilles[c.insee] ?? { court: c.nom, cote: 'd' as const };
+    return {
+      ...c,
+      ...p,
+      etiq,
+    };
+  });
+
 const titreId = `${id}-titre`;
 const descId = `${id}-desc`;
 ---
-<figure class="carte" data-carte>
-  <svg viewBox={`${vb.x} ${vb.y} ${vb.l} ${vb.h}`} role="img" aria-labelledby={`${titreId} ${descId}`}>
+<figure class="carte" data-carte id={id}>
+  <div class="carte-barre" role="toolbar" aria-label="Contrôles de la carte">
+    <div class="carte-groupe" role="group" aria-label="Niveau de zoom">
+      <button type="button" class="carte-btn actif" data-action="dezoom" aria-pressed="true" title="Afficher toute la zone (100 km)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+        <span>Tout voir (100 km)</span>
+      </button>
+      <button type="button" class="carte-btn" data-action="zoom" aria-pressed="false" title="Zoomer sur le secteur proche (50 km)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+        <span>Proche (50 km)</span>
+      </button>
+    </div>
+    <div class="carte-groupe" role="group" aria-label="Affichage des communes">
+      <button type="button" class="carte-btn actif" data-action="majeures" aria-pressed="true">
+        Villes principales
+      </button>
+      <button type="button" class="carte-btn" data-action="toutes" aria-pressed="false">
+        Toutes les communes ({toutesLesCommunes.length})
+      </button>
+    </div>
+  </div>
+
+  <svg viewBox={`${vbLarge.x} ${vbLarge.y} ${vbLarge.l} ${vbLarge.h}`} role="img" aria-labelledby={`${titreId} ${descId}`}>
     <title id={titreId}>Zone d'intervention autour de Louer (Landes)</title>
-    <desc id={descId}>Carte en cernes de 20 km autour de Louer. {points.map((p) => `${p.nom} : de ${p.kmMin} à ${p.kmMax} km par la route.`).join(' ')}</desc>
+    <desc id={descId}>Carte interactive en cernes de 20 km autour de Louer. Les grandes villes et les communes sont positionnées géographiquement.</desc>
     <defs>
-      <clipPath id={`${id}-cadre`}><rect x={vb.x} y={vb.y} width={vb.l} height={vb.h} rx="4" /></clipPath>
+      <clipPath id={`${id}-cadre`}><rect x={vbLarge.x} y={vbLarge.y} width={vbLarge.l} height={vbLarge.h} rx="4" /></clipPath>
       <pattern id={`${id}-houle`} width="14" height="8" patternUnits="userSpaceOnUse">
         <path d="M0 4q3.5-3 7 0t7 0" fill="none" stroke="currentColor" stroke-width="0.9" opacity="0.35" />
       </pattern>
     </defs>
     <g clip-path={`url(#${id}-cadre)`}>
-      <rect class="carte-fond" x={vb.x} y={vb.y} width={vb.l} height={vb.h} />
+      <rect class="carte-fond" x={vbLarge.x} y={vbLarge.y} width={vbLarge.l} height={vbLarge.h} />
       <path class="carte-ocean" d={ocean} fill={`url(#${id}-houle)`} />
       <path class="carte-cote" d={traitCote} />
       <g class="carte-cernes">
@@ -84,38 +144,106 @@ const descId = `${id}-desc`;
       </g>
       <path class="carte-adour" d={traitAdour} />
       <text class="carte-legende-adour" x={proj(43.735, -1.1).x} y={proj(43.735, -1.1).y}>Adour</text>
-      <text class="carte-legende-ocean" x={vb.x + 26} y={-40} transform={`rotate(-90 ${vb.x + 26} -40)`}>Océan Atlantique</text>
+      <text class="carte-legende-ocean" x={vbLarge.x + 26} y={-40} transform={`rotate(-90 ${vbLarge.x + 26} -40)`}>Océan Atlantique</text>
       {cernes.map((c) => (
         <text class="carte-km" x={(c.km * ECHELLE * 0.87).toFixed(1)} y={(c.km * ECHELLE * 0.5 + 5).toFixed(1)}>{c.km} km</text>
       ))}
     </g>
 
-    <g class="carte-points">
-      {points.map((p) => (
-        <a href={`/secteurs/${p.slug}/`} class:list={['carte-point', { actif: p.slug === actif, discret: actif && p.slug !== actif }]} aria-label={`${p.nom}, de ${p.kmMin} à ${p.kmMax} km`}>
-          <circle cx={p.x} cy={p.y} r="17" class="carte-zone" />
-          <circle cx={p.x} cy={p.y} r="6" />
-          <text
-            x={p.e.cote === 'd' ? p.x + 14 : p.e.cote === 'g' ? p.x - 14 : p.x}
-            y={p.y + (p.e.cote === 'b' ? 36 : 7) + (p.e.dy ?? 0)}
-            text-anchor={p.e.cote === 'd' ? 'start' : p.e.cote === 'g' ? 'end' : 'middle'}
-          >{p.e.court}</text>
+    <!-- Grands secteurs d'intervention -->
+    <g class="carte-secteurs-zones">
+      {pointsSecteurs.map((p) => (
+        <a href={`/secteurs/${p.slug}/`} class:list={['carte-zone-secteur', { actif: p.slug === actif }]} aria-label={`Secteur ${p.nom}`}>
+          <circle cx={p.x} cy={p.y} r="20" class="halo-secteur" />
         </a>
       ))}
     </g>
 
+    <!-- Communes et villes couvertes -->
+    <g class="carte-communes">
+      {communesProj.map((c) => {
+        const estMajeure = c.majeure;
+        const textAnchor = c.etiq.cote === 'g' ? 'end' : c.etiq.cote === 'd' ? 'start' : 'middle';
+        const tx = c.x + (c.etiq.dx ?? (c.etiq.cote === 'g' ? -7 : c.etiq.cote === 'd' ? 7 : 0));
+        const ty = c.y + (c.etiq.dy ?? (c.etiq.cote === 'b' ? 14 : c.etiq.cote === 'h' ? -9 : 4));
+        return (
+          <a
+            href={`/secteurs/${c.secteur}/`}
+            class:list={['carte-commune', { 'est-majeure': estMajeure }]}
+            aria-label={`${c.nom} (${c.km} km de Louer), voir le secteur`}
+          >
+            <circle cx={c.x} cy={c.y} r={estMajeure ? 4.5 : 2.5} class="point-ville" />
+            <text x={tx} y={ty} text-anchor={textAnchor} class="texte-ville">
+              {c.etiq.court ?? c.nom}
+            </text>
+            <title>{c.nom} — {c.km} km de Louer par la route</title>
+          </a>
+        );
+      })}
+    </g>
+
+    <!-- Point central : Siège à Louer -->
     <g class="carte-louer">
       <path d="M-26-5c10-6 31-8 52-5 4 1 4 7 0 8-18 4-37 5-52 2-5-1-5-4 0-5z" class="carte-marquage" />
       <circle r="7" />
       <text x="0" y="-19" text-anchor="middle">Louer</text>
+      <text x="0" y="22" text-anchor="middle" class="carte-louer-sous">Siège</text>
     </g>
   </svg>
-  <figcaption>Un cerne tous les 20 km à vol d'oiseau autour de Louer. Les distances de la liste sont des distances par la route.</figcaption>
+  <figcaption>Un cerne tous les 20 km à vol d'oiseau autour de Louer. Les distances de la liste sont calculées par la route.</figcaption>
 </figure>
 
 <script>
-  // Les cernes se dessinent une fois, quand la carte entre à l'écran.
-  const cartes = document.querySelectorAll<HTMLElement>('[data-carte]');
+  // Contrôles de zoom et d'affichage des communes
+  const conteneurs = document.querySelectorAll<HTMLElement>('[data-carte]');
+  conteneurs.forEach((carte) => {
+    const svg = carte.querySelector<SVGSVGElement>('svg');
+    if (!svg) return;
+
+    const vbLarge = '-310 -380 670 600';
+    const vbZoom = '-200 -160 380 310';
+
+    carte.querySelectorAll<HTMLButtonElement>('.carte-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const action = btn.dataset.action;
+        const groupe = btn.closest('.carte-groupe');
+
+        if (action === 'zoom' || action === 'dezoom') {
+          groupe?.querySelectorAll('.carte-btn').forEach((b) => {
+            b.classList.remove('actif');
+            b.setAttribute('aria-pressed', 'false');
+          });
+          btn.classList.add('actif');
+          btn.setAttribute('aria-pressed', 'true');
+
+          if (action === 'zoom') {
+            svg.setAttribute('viewBox', vbZoom);
+            carte.classList.add('mode-zoom');
+          } else {
+            svg.setAttribute('viewBox', vbLarge);
+            carte.classList.remove('mode-zoom');
+          }
+        }
+
+        if (action === 'majeures' || action === 'toutes') {
+          groupe?.querySelectorAll('.carte-btn').forEach((b) => {
+            b.classList.remove('actif');
+            b.setAttribute('aria-pressed', 'false');
+          });
+          btn.classList.add('actif');
+          btn.setAttribute('aria-pressed', 'true');
+
+          if (action === 'toutes') {
+            carte.classList.add('mode-toutes');
+          } else {
+            carte.classList.remove('mode-toutes');
+          }
+        }
+      });
+    });
+  });
+
+  // Animation des cernes quand la carte entre à l'écran
   const calme = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!calme && 'IntersectionObserver' in window) {
     const obs = new IntersectionObserver(
@@ -127,9 +255,9 @@ const descId = `${id}-desc`;
           }
         }
       },
-      { threshold: 0.35 },
+      { threshold: 0.25 },
     );
-    cartes.forEach((c) => {
+    conteneurs.forEach((c) => {
       if (c.getBoundingClientRect().top > window.innerHeight) {
         c.classList.add('a-dessiner');
         obs.observe(c);
@@ -143,10 +271,57 @@ const descId = `${id}-desc`;
     margin: 0;
     color: var(--pin);
   }
+  .carte-barre {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-2);
+    margin-bottom: var(--s-3);
+  }
+  .carte-groupe {
+    display: inline-flex;
+    gap: 3px;
+    background: var(--fond-doux);
+    padding: 3px;
+    border-radius: var(--rayon);
+    border: 1px solid var(--filet);
+  }
+  .carte-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: none;
+    background: transparent;
+    color: var(--texte-doux);
+    font-family: var(--f-titre);
+    font-weight: 700;
+    font-size: 0.82rem;
+    font-stretch: 85%;
+    padding: 0.35rem 0.65rem;
+    border-radius: var(--rayon);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .carte-btn:hover {
+    color: var(--pin-profond);
+  }
+  .carte-btn.actif {
+    background: var(--pin);
+    color: #ffffff;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  }
+  .carte-btn:focus-visible {
+    outline: 2px solid var(--marquage);
+    outline-offset: 1px;
+  }
+
   .carte svg {
     width: 100%;
     height: auto;
     font-family: var(--f-titre);
+    border-radius: var(--rayon);
+    transition: viewBox 0.3s ease;
   }
   .carte-fond {
     fill: var(--sable);
@@ -169,7 +344,7 @@ const descId = `${id}-desc`;
   }
   .carte-legende-adour,
   .carte-legende-ocean {
-    font-size: 16px;
+    font-size: 15px;
     font-stretch: 85%;
     font-weight: 600;
     letter-spacing: 0.04em;
@@ -189,7 +364,7 @@ const descId = `${id}-desc`;
     opacity: 0.4;
   }
   .carte-km {
-    font-size: 15px;
+    font-size: 14px;
     font-stretch: 80%;
     font-weight: 600;
     fill: var(--ecorce);
@@ -197,67 +372,109 @@ const descId = `${id}-desc`;
     stroke: var(--sable);
     stroke-width: 4px;
   }
-  .carte-point {
-    color: var(--pin);
-    cursor: pointer;
-  }
-  .carte-point circle {
-    fill: currentColor;
-  }
-  .carte-point .carte-zone {
+
+  /* Halos de secteur */
+  .halo-secteur {
     fill: var(--pin);
-    opacity: 0.12;
+    opacity: 0.08;
+    transition: opacity 0.2s ease;
   }
-  .carte-point text {
-    font-size: 22px;
-    font-stretch: 78%;
+  .carte-zone-secteur:hover .halo-secteur,
+  .carte-zone-secteur.actif .halo-secteur {
+    opacity: 0.25;
+    fill: var(--pin-profond);
+  }
+
+  /* Villes et communes */
+  .carte-commune {
+    color: var(--pin-profond);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .point-ville {
+    fill: var(--pin);
+    stroke: var(--sable);
+    stroke-width: 1.5px;
+    transition: transform 0.15s ease, fill 0.15s ease;
+  }
+  .carte-commune:hover .point-ville,
+  .carte-commune:focus-visible .point-ville {
+    fill: var(--orange-signal);
+    stroke: #ffffff;
+    stroke-width: 2px;
+  }
+  .texte-ville {
+    font-size: 15px;
+    font-stretch: 80%;
     font-weight: 750;
-    fill: currentColor;
+    fill: var(--pin-profond);
     paint-order: stroke;
     stroke: var(--sable);
-    stroke-width: 5px;
+    stroke-width: 4px;
     stroke-linejoin: round;
+    transition: fill 0.15s ease;
   }
-  .carte-point:hover text,
-  .carte-point:focus-visible text {
+  .carte-commune:hover .texte-ville,
+  .carte-commune:focus-visible .texte-ville {
+    fill: var(--orange-signal);
     text-decoration: underline;
   }
-  .carte-point:focus-visible {
-    outline: none;
+
+  /* Par défaut : seules les villes majeures ont leur texte visible */
+  .carte-commune:not(.est-majeure) .texte-ville {
+    display: none;
   }
-  .carte-point:focus-visible .carte-zone {
-    opacity: 1;
-    fill: none;
-    stroke: var(--marquage);
-    stroke-width: 3;
+  .carte-commune:not(.est-majeure) .point-ville {
+    opacity: 0.55;
+    fill: var(--pin-clair);
   }
-  .carte-point.actif .carte-zone {
-    opacity: 1;
-    fill: none;
-    stroke: var(--marquage);
-    stroke-width: 4;
-  }
-  .carte-point.discret {
-    color: var(--pin-clair);
-  }
-  .carte-point.discret text {
+
+  /* Mode 'Toutes les communes' */
+  .carte.mode-toutes .carte-commune:not(.est-majeure) .texte-ville {
+    display: inline;
+    font-size: 11px;
     font-weight: 600;
+    fill: var(--texte-doux);
+    stroke-width: 3px;
   }
+  .carte.mode-toutes .carte-commune:not(.est-majeure) .point-ville {
+    opacity: 0.9;
+  }
+
+  /* Mode Zoom proche */
+  .carte.mode-zoom .texte-ville {
+    font-size: 17px;
+  }
+  .carte.mode-zoom .carte-commune:not(.est-majeure) .texte-ville {
+    font-size: 13px;
+  }
+
+  /* Point Louer */
   .carte-louer circle {
-    fill: var(--pin);
+    fill: var(--pin-profond);
+    stroke: #ffffff;
+    stroke-width: 2px;
   }
   .carte-marquage {
     fill: var(--marquage);
   }
   .carte-louer text {
-    font-size: 25px;
+    font-size: 24px;
     font-stretch: 75%;
     font-weight: 850;
-    fill: var(--pin);
+    fill: var(--pin-profond);
     paint-order: stroke;
     stroke: var(--sable);
     stroke-width: 5px;
   }
+  .carte-louer-sous {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    fill: var(--pin-profond) !important;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
   figcaption {
     margin-top: var(--s-3);
     font-size: var(--t--1);
@@ -270,7 +487,8 @@ const descId = `${id}-desc`;
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
   }
-  .a-dessiner .carte-points,
+  .a-dessiner .carte-communes,
+  .a-dessiner .carte-secteurs-zones,
   .a-dessiner .carte-km {
     opacity: 0;
   }
@@ -284,7 +502,8 @@ const descId = `${id}-desc`;
   .dessine .cerne-fin {
     animation-delay: calc(var(--i, 0) * 110ms + 60ms);
   }
-  .dessine .carte-points,
+  .dessine .carte-communes,
+  .dessine .carte-secteurs-zones,
   .dessine .carte-km {
     animation: apparait 0.6s ease 1.2s forwards;
   }
@@ -296,6 +515,16 @@ const descId = `${id}-desc`;
   @keyframes apparait {
     to {
       opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carte-barre,
+    .carte-btn,
+    .carte-commune,
+    .point-ville,
+    .texte-ville {
+      transition: none !important;
     }
   }
 </style>

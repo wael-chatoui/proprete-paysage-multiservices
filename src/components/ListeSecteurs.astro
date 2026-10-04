@@ -4,17 +4,26 @@ import { fourchetteKm } from '../lib/contenu';
 interface Props {
   secteurs: CollectionEntry<'secteurs'>[];
   actif?: string;
+  afficherCommunes?: boolean;
 }
-const { secteurs, actif } = Astro.props;
+const { secteurs, actif, afficherCommunes = true } = Astro.props;
 ---
 <ul class="secteurs">
   {secteurs.map((s) => {
     const { min, max } = fourchetteKm(s.data.communes);
+    const nomsCommunes = s.data.communes.map((c) => c.nom);
     return (
       <li>
-        <a href={`/secteurs/${s.id}/`} aria-current={s.id === actif ? 'page' : undefined}>
-          <span class="secteur-nom">{s.data.nom}</span>
-          <span class="secteur-km">{min} à {max} km</span>
+        <a href={`/secteurs/${s.id}/`} class="secteur-lien" aria-current={s.id === actif ? 'page' : undefined}>
+          <span class="secteur-entete">
+            <span class="secteur-nom">{s.data.nom}</span>
+            <span class="secteur-km">{min} à {max} km</span>
+          </span>
+          {afficherCommunes && (
+            <span class="secteur-villes">
+              {nomsCommunes.join(' · ')}
+            </span>
+          )}
         </a>
       </li>
     );
@@ -30,13 +39,16 @@ const { secteurs, actif } = Astro.props;
   .secteurs li {
     border-bottom: 1px solid var(--filet);
   }
-  .secteurs a {
+  .secteur-lien {
+    display: block;
+    padding-block: var(--s-3);
+    text-decoration: none;
+  }
+  .secteur-entete {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     gap: var(--s-4);
-    padding-block: var(--s-3);
-    text-decoration: none;
   }
   .secteur-nom {
     font-family: var(--f-titre);
@@ -44,11 +56,12 @@ const { secteurs, actif } = Astro.props;
     font-weight: 700;
     font-size: var(--t-1);
     line-height: 1.2;
+    color: var(--texte);
   }
-  .secteurs a:hover .secteur-nom {
+  .secteur-lien:hover .secteur-nom {
     text-decoration: underline;
   }
-  .secteurs a[aria-current='page'] .secteur-nom {
+  .secteur-lien[aria-current='page'] .secteur-nom {
     background: var(--trait) no-repeat 0 100% / 100% 0.25em;
   }
   .secteur-km {
@@ -56,5 +69,12 @@ const { secteurs, actif } = Astro.props;
     font-size: var(--t--1);
     color: var(--texte-doux);
     font-variant-numeric: tabular-nums;
+  }
+  .secteur-villes {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: var(--texte-doux);
   }
 </style>
