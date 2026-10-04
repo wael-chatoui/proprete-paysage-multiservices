@@ -17,14 +17,17 @@ const photo = photos[nom];
 const fichiers = import.meta.glob<{ default: ImageMetadata }>('../assets/photos/*.{jpg,jpeg,png,webp,avif}', { eager: true });
 const candidats = photo?.fichier ? [photo.fichier] : ['jpg', 'jpeg', 'webp', 'png', 'avif'].map((ext) => `${nom}.${ext}`);
 const image = candidats.map((f) => fichiers[`../assets/photos/${f}`]?.default).find(Boolean);
-const mention = photo?.type === 'reel' ? null : photo?.type === 'ia' ? 'Illustration générée par IA' : 'Illustration';
+// L'indication d'illustration est conservée dans l'alt et les attributs, sans mention visuelle intrusive
+const texteAlt = photo?.type === 'ia' && !photo.alt.toLowerCase().includes('illustration')
+  ? `${photo.alt} (illustration)`
+  : photo.alt;
 ---
 {(image || prioritaire) && (
-<figure class:list={['photo', classe]} style={`--ratio:${ratio}`}>
+<figure class:list={['photo', classe]} style={`--ratio:${ratio}`} data-type={photo?.type}>
   {image ? (
     <Picture
       src={image}
-      alt={photo.alt}
+      alt={texteAlt}
       formats={['avif', 'webp']}
       widths={[480, 720, 960, 1280, 1600].filter((w) => w <= image.width)}
       sizes={sizes}
@@ -35,9 +38,9 @@ const mention = photo?.type === 'reel' ? null : photo?.type === 'ia' ? 'Illustra
   ) : (
     <div class="photo-attente" aria-hidden="true"></div>
   )}
-  {image && legende && (mention || photo?.credit) && (
+  {image && legende && photo?.credit && (
     <figcaption>
-      {mention}{photo?.credit && <>. {photo.credit}{photo.licence && <>, <a href={photo.licence.url} rel="license noopener">{photo.licence.nom}</a></>}</>}
+      {photo.credit}{photo.licence && <>, <a href={photo.licence.url} rel="license noopener">{photo.licence.nom}</a></>}
     </figcaption>
   )}
 </figure>
