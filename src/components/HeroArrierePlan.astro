@@ -1,0 +1,166 @@
+---
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { photos } from '../data/photos';
+
+interface Props {
+  images?: string[];
+}
+
+const {
+  images = [
+    'accueil',
+    'abattage-arbres',
+    'elagage',
+    'debroussaillage',
+    'nettoyage-proprete',
+    'debardage',
+  ],
+} = Astro.props;
+
+const fichiers = import.meta.glob<{ default: ImageMetadata }>('../assets/photos/*.{jpg,jpeg,png,webp,avif}', { eager: true });
+
+const diaporama = images
+  .map((cle) => {
+    const photo = photos[cle];
+    const candidats = photo?.fichier ? [photo.fichier] : ['jpg', 'jpeg', 'webp', 'png', 'avif'].map((ext) => `${cle}.${ext}`);
+    const meta = candidats.map((f) => fichiers[`../assets/photos/${f}`]?.default).find(Boolean);
+    return {
+      cle,
+      meta,
+      alt: photo?.alt ?? 'Chantier forestier et entretien de terrain Propreté Paysage Multiservice',
+    };
+  })
+  .filter((item): item is { cle: string; meta: ImageMetadata; alt: string } => Boolean(item.meta));
+---
+
+<div class="hero-arriere-plan" aria-hidden="true">
+  {diaporama.map((item, index) => (
+    <div class:list={['hero-slide', { actif: index === 0 }]} data-slide={index}>
+      <Picture
+        src={item.meta}
+        alt={item.alt}
+        formats={['avif', 'webp']}
+        widths={[720, 1080, 1440, 1920].filter((w) => w <= item.meta.width)}
+        sizes="100vw"
+        loading={index === 0 ? 'eager' : 'lazy'}
+        fetchpriority={index === 0 ? 'high' : 'auto'}
+        decoding="async"
+      />
+    </div>
+  ))}
+  <div class="hero-filtre-vert"></div>
+</div>
+
+<script>
+  function lancerDiaporama() {
+    const conteneur = document.querySelector('.hero-arriere-plan');
+    if (!conteneur) return;
+    const slides = conteneur.querySelectorAll<HTMLElement>('.hero-slide');
+    if (slides.length <= 1) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    let actif = 0;
+    setInterval(() => {
+      slides[actif].classList.remove('actif');
+      actif = (actif + 1) % slides.length;
+      slides[actif].classList.add('actif');
+    }, 5500);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', lancerDiaporama);
+  } else {
+    lancerDiaporama();
+  }
+</script>
+
+<style>
+  .hero-arriere-plan {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+    background-color: var(--pin-profond, #12241b);
+  }
+
+  .hero-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1.6s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity;
+  }
+
+  .hero-slide.actif {
+    opacity: 1;
+    z-index: 1;
+  }
+
+  .hero-slide :global(picture) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-slide :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 40%;
+    display: block;
+    filter: brightness(0.8) contrast(1.05) saturate(0.95);
+    transform: scale(1.04);
+    transition: transform 6s ease-out;
+  }
+
+  .hero-slide.actif :global(img) {
+    transform: scale(1);
+  }
+
+  /* Filtre vert forêt pour correspondre à l'identité du site et garantir une lisibilité optimale */
+  .hero-filtre-vert {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(
+      135deg,
+      rgba(18, 36, 27, 0.88) 0%,
+      rgba(26, 52, 38, 0.80) 50%,
+      rgba(18, 36, 27, 0.92) 100%
+    );
+  }
+
+  /* Vignettage pour adoucir les bords et sublimer le contraste du texte */
+  .hero-filtre-vert::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(
+        ellipse at 35% 50%,
+        transparent 0%,
+        rgba(18, 36, 27, 0.45) 80%
+      ),
+      linear-gradient(
+        to bottom,
+        rgba(18, 36, 27, 0.4) 0%,
+        transparent 35%,
+        rgba(18, 36, 27, 0.75) 100%
+      );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-slide {
+      transition: none !important;
+    }
+    .hero-slide :global(img) {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+</style>

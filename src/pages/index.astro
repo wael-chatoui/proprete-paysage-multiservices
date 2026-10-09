@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
 import Icone from '../components/Icone.astro';
 import CarteCernes from '../components/CarteCernes.astro';
+import HeroArrierePlan from '../components/HeroArrierePlan.astro';
 import Faq from '../components/Faq.astro';
 import ListePrestations from '../components/ListePrestations.astro';
 import ListeSecteurs from '../components/ListeSecteurs.astro';
@@ -51,7 +52,8 @@ const description =
 ---
 <Base titre={titre} description={description} noeuds={[noeudFaq('/', faq)]}>
   <section class="ouverture" aria-labelledby="titre-page">
-    <div class="enveloppe ouverture-grille">
+    <HeroArrierePlan />
+    <div class="enveloppe ouverture-contenu">
       <div class="ouverture-texte">
         <h1 id="titre-page">Abattage, élagage, débroussaillage et nettoyage de terrains dans les Landes</h1>
         <p class="ouverture-entite">{business.nom} travaille depuis Louer, au cœur des Landes. Un pin menaçant à abattre, une parcelle à débroussailler avant l'été (OLD), ou un terrain en friche à remettre en propreté avant une vente : décrivez-nous la situation.</p>
@@ -82,7 +84,6 @@ const description =
           </div>
         </div>
       </div>
-      <Photo nom="accueil" sizes="(max-width: 52rem) 100vw, 42vw" prioritaire ratio="16 / 10" class="ouverture-photo" />
     </div>
   </section>
 
@@ -181,26 +182,32 @@ const description =
 
 <style>
   .ouverture {
-    background: var(--pin);
-    color: var(--papier);
-    padding-block: var(--s-7);
+    position: relative;
+    background: var(--pin-profond, #12241b);
+    color: #ffffff;
+    padding-block: clamp(3.5rem, 2.5rem + 5vw, 6.5rem);
+    overflow: hidden;
   }
-  .ouverture-grille {
-    display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-    gap: var(--s-7);
-    align-items: center;
+  .ouverture-contenu {
+    position: relative;
+    z-index: 2;
+  }
+  .ouverture-texte {
+    max-width: 52rem;
   }
   .ouverture h1 {
     font-size: var(--t-4);
-    max-width: 18ch;
+    max-width: 24ch;
+    color: #ffffff;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
   }
   .ouverture-entite {
     margin-top: var(--s-5);
-    max-width: 50ch;
+    max-width: 54ch;
     font-size: var(--t-1);
-    line-height: 1.5;
-    color: rgb(255 255 255 / 0.88);
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
   }
   .ouverture-appel {
     margin-top: var(--s-6);
@@ -221,7 +228,8 @@ const description =
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     text-decoration: none;
-    color: var(--papier);
+    color: #ffffff;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
   }
   .numero:hover,
   .numero:focus-visible {
@@ -237,7 +245,7 @@ const description =
   .numero-bloc:hover .numero-trait-svg path,
   .numero-bloc:focus-within .numero-trait-svg path {
     stroke-width: 9;
-    filter: drop-shadow(0 0 6px rgba(255, 46, 126, 0.45));
+    filter: drop-shadow(0 0 8px rgba(255, 46, 126, 0.6));
     transition: stroke-width 0.2s ease, filter 0.2s ease;
   }
   .ouverture-actions {
@@ -248,31 +256,25 @@ const description =
     gap: var(--s-3) var(--s-4);
   }
   .ouverture-actions .btn-secondaire {
-    border-color: rgba(255, 255, 255, 0.7);
+    border-color: rgba(255, 255, 255, 0.75);
     color: #ffffff;
-    background: transparent;
+    background: rgba(18, 36, 27, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
   .ouverture-actions .btn-secondaire:hover {
     border-color: #ffffff;
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.2);
   }
   .ouverture-actions .btn-tertiaire {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.95);
+    background: rgba(18, 36, 27, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
   .ouverture-actions .btn-tertiaire:hover {
     color: #ffffff;
-    background: rgba(255, 255, 255, 0.1);
-  }
-  .ouverture :global(.ouverture-photo) {
-    background: transparent;
-  }
-  .ouverture :global(.ouverture-photo img) {
-    object-position: center 35%;
-    box-shadow: 0 16px 40px rgb(0 0 0 / 0.3);
-    border: 1px solid rgb(255 255 255 / 0.12);
-  }
-  .ouverture :global(.ouverture-photo figcaption) {
-    color: rgb(255 255 255 / 0.85);
+    background: rgba(255, 255, 255, 0.16);
   }
 
   .deroule {
@@ -414,7 +416,6 @@ const description =
   }
 
   @media (max-width: 52rem) {
-    .ouverture-grille,
     .zone-grille {
       grid-template-columns: 1fr;
     }
@@ -433,9 +434,6 @@ const description =
     .ouverture-actions .action {
       width: 100%;
       justify-content: center;
-    }
-    .ouverture :global(.ouverture-photo:has(.photo-attente)) {
-      display: none;
     }
   }
 </style>
