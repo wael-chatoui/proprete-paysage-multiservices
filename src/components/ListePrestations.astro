@@ -23,14 +23,12 @@ const groupesPoles = [
   {
     cle: 'foret',
     titre: 'Travaux forestiers et soins aux arbres',
-    badge: "2/3 de l'activité",
     intro: 'Abattage technique, bûcheronnage, élagage encordé, débardage des grumes et débroussaillement obligatoire (OLD).',
     liste: prestations.filter((p) => FORESTIERS.includes(p.id)),
   },
   {
     cle: 'proprete',
     titre: 'Propreté et nettoyage de terrains',
-    badge: "1/3 de l'activité",
     intro: 'Remise en état de parcelles en friche, avant-vente, fin de chantier et entretien paysager d\'espaces verts.',
     liste: prestations.filter((p) => PROPRETE.includes(p.id)),
   },
@@ -42,9 +40,6 @@ const groupesPoles = [
     {groupesPoles.map((g) => (
       <section class={`pole-bloc pole-${g.cle}`} aria-label={g.titre}>
         <div class="pole-entete">
-          <div class="pole-ligne-badge">
-            <span class={`pole-badge pole-badge-${g.cle}`}>{g.badge}</span>
-          </div>
           <TitrePole class="pole-titre">{g.titre}</TitrePole>
           <p class="pole-intro">{g.intro}</p>
         </div>
@@ -87,28 +82,6 @@ const groupesPoles = [
   }
   .pole-entete {
     padding-bottom: var(--s-2);
-  }
-  .pole-ligne-badge {
-    margin-bottom: var(--s-2);
-  }
-  .pole-badge {
-    display: inline-block;
-    font-family: var(--f-titre);
-    font-stretch: 80%;
-    font-weight: 700;
-    font-size: var(--t--1);
-    padding: 0.15rem 0.6rem;
-    border-radius: var(--rayon);
-    letter-spacing: 0.03em;
-  }
-  .pole-badge-foret {
-    background: var(--pin-profond);
-    color: #ffffff;
-  }
-  .pole-badge-proprete {
-    background: #eef4f0;
-    color: var(--pin-profond);
-    border: 1px solid var(--pin);
   }
   .pole-titre {
     font-size: var(--t-2);
