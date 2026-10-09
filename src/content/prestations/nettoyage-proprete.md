@@ -1,11 +1,11 @@
 ---
 title: "Nettoyage de terrain et propreté extérieure dans les Landes"
-description: "Nettoyage de terrains en friche, avant une vente ou une location, ou après une tempête dans les Landes : obligation d'entretien, OLD, déchets verts."
+description: "Remise en état et nettoyage de terrains en friche, avant-vente, fin de chantier ou après tempête dans les Landes. Traitement des déchets verts et devis."
 h1: "Propreté et nettoyage de terrains"
-dateModified: "2026-10-02"
+dateModified: "2026-10-07"
 nom: "Propreté et nettoyage de terrains"
-ordre: 6
-accroche: "Nous remettons en propreté les terrains extérieurs, qu'il s'agisse de parcelles en friche, d'abords de maison, de terrains à vendre ou à louer ou de jardins encombrés de branches après une tempête, dans les Landes et les départements voisins, depuis Louer."
+ordre: 5
+accroche: "Nous remettons en propreté les terrains extérieurs : parcelles en friche, préparation avant vente ou succession, dégagement d'abords, fin de chantier et remise en état après tempête, dans les Landes et les départements voisins, depuis Louer."
 serviceType: "Nettoyage de terrains"
 photo: "nettoyage-proprete"
 guides:
@@ -45,7 +45,13 @@ sources:
     consulte: "2026-10-02"
 ---
 
-Une parcelle en friche qu'on n'a pas vue depuis des années, un terrain à mettre en vente, un jardin couvert de branches après un coup de vent : avant de pouvoir entretenir, il faut souvent remettre en propreté. Nous nettoyons les terrains extérieurs dans les Landes et les départements voisins, depuis Louer. Cette page couvre le nettoyage en extérieur : végétation, branches et déchets verts.
+Une parcelle en friche qu'on n'a pas vue depuis des années, un terrain à mettre en valeur avant une vente, des abords envahis par la végétation ou un jardin encombré après des intempéries : avant de pouvoir entretenir, il faut remettre en propreté. Nous intervenons sur les terrains extérieurs dans les Landes et les départements voisins, depuis Louer, pour dégager, faucher, ramasser et évacuer les déchets végétaux.
+
+## En quoi consiste la remise en état d'un terrain extérieur ?
+
+La remise en état comprend le fauchage ou le broyage de la végétation envahissante (ronciers, fougères, herbes hautes), le dégagement des abords de constructions et des clôtures, le ramassage des branches au sol et l'évacuation des déchets végétaux. Elle permet de redonner de la visibilité à la parcelle, d'en faciliter l'accès et de sécuriser les lieux.
+
+Sur une parcelle restée sans entretien, l'intervention s'adapte à la densité des broussailles et à la configuration du sol : fossés, talus, souches ou accès étroit. Le tri et l'évacuation des végétaux sont organisés selon le volume présent.
 
 ## Quand faut-il nettoyer un terrain en friche ?
 

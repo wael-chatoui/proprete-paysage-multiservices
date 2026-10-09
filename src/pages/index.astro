@@ -37,20 +37,24 @@ const faq = [
   },
   {
     q: 'Quelles prestations proposez-vous ?',
-    r: "Abattage et bûcheronnage, élagage, débardage, débroussaillage (y compris les obligations légales de débroussaillement), entretien d'espaces verts, et nettoyage de terrains.",
+    r: "Deux volets d'activité : les travaux forestiers et d'arbres (abattage, élagage, débardage, débroussaillage OLD) et la propreté extérieure (remise en état et nettoyage de terrains en friche, entretien d'espaces verts).",
+  },
+  {
+    q: 'Proposez-vous le nettoyage complet d’un terrain en friche ?',
+    r: 'Oui. Nous remettons en état les parcelles extérieures : fauchage des ronces et broussailles, dégagement des accès et clôtures, ramassage des branchages et évacuation des déchets végétaux.',
   },
 ];
 
-const titre = 'Abattage, élagage, débroussaillage dans les Landes';
+const titre = 'Abattage, élagage et nettoyage de terrain dans les Landes';
 const description =
-  "Abattage, élagage, débardage, débroussaillage OLD et entretien de jardins depuis Louer, entre Dax et Mont-de-Marsan. Appel ou SMS : 06 85 57 06 75.";
+  "Abattage, élagage, débroussaillage OLD et nettoyage de terrains depuis Louer, entre Dax et Mont-de-Marsan. Appel ou SMS : 06 85 57 06 75.";
 ---
 <Base titre={titre} description={description} noeuds={[noeudFaq('/', faq)]}>
   <section class="ouverture" aria-labelledby="titre-page">
     <div class="enveloppe ouverture-grille">
       <div class="ouverture-texte">
-        <h1 id="titre-page">Abattage, élagage et débroussaillage autour de Dax et Mont-de-Marsan</h1>
-        <p class="ouverture-entite">{business.nom} travaille depuis Louer, au cœur des Landes. Un pin penché sur la maison, une parcelle à débroussailler avant l'été, des chablis à sortir : décrivez-nous la situation.</p>
+        <h1 id="titre-page">Abattage, élagage, débroussaillage et nettoyage de terrains dans les Landes</h1>
+        <p class="ouverture-entite">{business.nom} travaille depuis Louer, au cœur des Landes. Un pin menaçant à abattre, une parcelle à débroussailler avant l'été (OLD), ou un terrain en friche à remettre en propreté avant une vente : décrivez-nous la situation.</p>
 
         <div class="ouverture-appel">
           <div class="numero-bloc">
@@ -86,9 +90,25 @@ const description =
     <div class="enveloppe">
       <div class="bloc-titre">
         <h2 id="titre-prestations">Ce que nous faisons</h2>
-        <p>Six métiers du bois et de l'extérieur, du pin isolé au fond de jardin à la parcelle forestière.</p>
+        <p>Deux volets complémentaires : 4 métiers du bois et de la forêt, et 2 métiers de propreté extérieure.</p>
       </div>
-      <ListePrestations prestations={listePrestations} />
+      <ListePrestations prestations={listePrestations} poleNiveau="h3" titreNiveau="h4" poles={true} />
+
+      <div class="focus-nettoyage">
+        <div class="focus-nettoyage-texte">
+          <span class="focus-badge">Zoom sur la propreté extérieure</span>
+          <h3>Remise en état et nettoyage de parcelles</h3>
+          <p>
+            Avant une vente immobilière, après des travaux ou des intempéries, ou pour répondre à une obligation d'entretien : nous dégageons les ronces, libérons les clôtures et accès, ramassons les branchages et évacuons les déchets verts.
+          </p>
+          <a class="action btn-secondaire focus-lien" href="/nettoyage-proprete/">
+            <span>Consulter la prestation nettoyage de terrain</span>
+          </a>
+        </div>
+        <div class="focus-nettoyage-photo">
+          <Photo nom="nettoyage-proprete" ratio="16 / 10" sizes="(max-width: 52rem) 100vw, 32vw" />
+        </div>
+      </div>
     </div>
   </section>
 
@@ -100,19 +120,19 @@ const description =
       <ol class="etapes">
         <li>
           <h3>Vous appelez ou vous écrivez</h3>
-          <p>Par téléphone, SMS ou e-mail. Des photos aident beaucoup : l'arbre en entier, sa base, ce qui l'entoure.</p>
+          <p>Par téléphone, SMS ou e-mail. Des photos aident beaucoup : l'arbre à traiter, la surface du terrain, les accès et ce qui l'entoure.</p>
         </li>
         <li>
           <h3>Vous précisez le chantier</h3>
-          <p>La commune, l'essence et la hauteur approximative, l'accès pour le matériel, la présence d'une maison ou d'une ligne électrique à proximité.</p>
+          <p>La commune, la nature des travaux (arbres, débroussaillage ou nettoyage de friche), les dimensions approximatives et l'accès pour le matériel.</p>
         </li>
         <li>
           <h3>Vous recevez un devis écrit</h3>
-          <p>Après un passage sur place si la situation l'exige. Le devis précise ce que deviennent le bois et les déchets verts.</p>
+          <p>Après un passage sur place si la situation l'exige. Le devis détaille le travail et précise ce que deviennent le bois, les végétaux et les déchets verts.</p>
         </li>
         <li>
           <h3>Le chantier est réalisé</h3>
-          <p>À la date convenue ensemble, en tenant compte de la saison et des règles en vigueur.</p>
+          <p>À la date convenue ensemble, en veillant à la sécurité, à la saison et aux règles en vigueur.</p>
         </li>
       </ol>
     </div>
@@ -348,10 +368,60 @@ const description =
     color: var(--orange-signal);
   }
 
+  .focus-nettoyage {
+    margin-top: var(--s-7);
+    padding: var(--s-6);
+    background: var(--fond-doux);
+    border: 1px solid var(--filet);
+    border-radius: var(--rayon);
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: var(--s-6);
+    align-items: center;
+  }
+  .focus-badge {
+    display: inline-block;
+    font-family: var(--f-titre);
+    font-stretch: 80%;
+    font-weight: 700;
+    font-size: var(--t--1);
+    background: var(--pin);
+    color: #ffffff;
+    padding: 0.15rem 0.6rem;
+    border-radius: var(--rayon);
+    margin-bottom: var(--s-3);
+  }
+  .focus-nettoyage-texte h3 {
+    font-size: var(--t-2);
+    font-family: var(--f-titre);
+    font-stretch: 74%;
+    color: var(--pin-profond);
+    margin: 0 0 var(--s-3);
+  }
+  .focus-nettoyage-texte p {
+    color: var(--texte-doux);
+    font-size: var(--t-0);
+    line-height: 1.55;
+    margin: 0 0 var(--s-5);
+  }
+  .focus-lien {
+    display: inline-flex;
+    text-decoration: none;
+  }
+  .focus-nettoyage-photo {
+    border-radius: var(--rayon);
+    overflow: hidden;
+  }
+
   @media (max-width: 52rem) {
     .ouverture-grille,
     .zone-grille {
       grid-template-columns: 1fr;
+    }
+    .focus-nettoyage {
+      grid-template-columns: 1fr;
+      padding: var(--s-4);
+      gap: var(--s-4);
     }
     .ouverture {
       padding-block: var(--s-6);

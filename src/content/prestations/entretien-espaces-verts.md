@@ -4,7 +4,7 @@ description: "Entretien de jardins autour de Dax et dans les Landes : tonte, tai
 h1: "Entretien d'espaces verts : tonte, taille de haies, déchets verts"
 dateModified: "2026-10-02"
 nom: "Entretien d'espaces verts"
-ordre: 5
+ordre: 6
 accroche: "Nous entretenons les jardins et les espaces verts (tonte, taille de haies, ramassage des feuilles et des déchets verts) autour de Dax et dans toutes les Landes, depuis Louer, y compris pour des résidences secondaires."
 serviceType: "Entretien d'espaces verts"
 photo: "entretien-espaces-verts"

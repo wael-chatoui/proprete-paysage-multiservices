@@ -42,10 +42,10 @@ export const business = {
 // Phrase d'entité : reprise mot pour mot sur l'accueil, la page entreprise, le pied de page,
 // llms.txt et la description du schema.org. Ne pas la reformuler ailleurs.
 export const ENTITE =
-  "Propreté Paysage Multiservice est une entreprise individuelle de travaux forestiers et d'entretien d'espaces verts basée à Louer, dans les Landes (40380), entre Dax et Mont-de-Marsan : abattage, élagage, débardage, débroussaillage, entretien de jardins et nettoyage de terrains.";
+  "Propreté Paysage Multiservice est une entreprise individuelle de travaux forestiers, d'entretien paysager et de nettoyage de terrains basée à Louer, dans les Landes (40380), entre Dax et Mont-de-Marsan : abattage, élagage, débardage, débroussaillage, entretien de jardins et remise en propreté extérieure.";
 
 export const ENTITE_COURTE =
-  'Abattage, élagage, débardage et débroussaillage dans les Landes, depuis Louer, entre Dax et Mont-de-Marsan.';
+  'Abattage, élagage, débroussaillage et nettoyage de terrain dans les Landes, depuis Louer, entre Dax et Mont-de-Marsan.';
 
 export const adresseLigne = `${business.adresse.rue}, ${business.adresse.codePostal} ${business.adresse.ville}`;
 

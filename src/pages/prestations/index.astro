@@ -15,20 +15,20 @@ const noeudListe = {
 };
 ---
 <Base
-  titre="Prestations : abattage, élagage, débardage dans les Landes"
-  description="Abattage, élagage, débardage, débroussaillage et OLD, entretien de jardins, nettoyage de terrains : les prestations de Propreté Paysage Multiservice à Louer."
+  titre="Prestations : travaux d'arbres et nettoyage de terrains"
+  description="Abattage, élagage, débroussaillage OLD et nettoyage de terrains à Louer et dans les Landes : les prestations de Propreté Paysage Multiservice."
   og="prestations"
   miettes={miettes}
   typePage="CollectionPage"
   noeuds={[noeudListe]}
 >
   <Bandeau
-    h1="Nos prestations de travaux forestiers et d'entretien extérieur"
-    accroche="Six prestations, de l'arbre isolé au fond du jardin à la parcelle forestière, dans les Landes et les départements voisins."
+    h1="Travaux d'arbres, forêt et nettoyage de terrains dans les Landes"
+    accroche="Deux volets d'activité : 4 métiers du bois et de la forêt (abattage, élagage, débardage, débroussaillage) et 2 métiers de propreté extérieure (nettoyage de terrains, entretien de jardins)."
     miettes={miettes}
   />
   <div class="enveloppe page-grille">
-    <ListePrestations prestations={liste} titreNiveau="h2" />
+    <ListePrestations prestations={liste} poleNiveau="h2" titreNiveau="h3" poles={true} />
     <div class="page-cote"><div class="page-cote-collant"><EncartContact /></div></div>
   </div>
 </Base>

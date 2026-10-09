@@ -1,30 +1,132 @@
 ---
 // Prestations en liste : le nom condensé, une phrase, et un trait de marquage au survol.
 import type { CollectionEntry } from 'astro:content';
+
 interface Props {
   prestations: CollectionEntry<'prestations'>[];
-  titreNiveau?: 'h2' | 'h3';
+  titreNiveau?: 'h2' | 'h3' | 'h4';
+  poleNiveau?: 'h2' | 'h3';
+  poles?: boolean;
 }
-const { prestations, titreNiveau = 'h3' } = Astro.props;
+
+const { prestations, titreNiveau = 'h3', poleNiveau = 'h3', poles = false } = Astro.props;
 const Titre = titreNiveau;
+const TitrePole = poleNiveau;
+
 // Dans une liste, la mention de zone répétée à chaque ligne alourdit la lecture.
 const court = (a: string) => a.replace(/,? dans les Landes et les départements voisins, depuis Louer\.$/, '.');
+
+const FORESTIERS = ['abattage-arbres', 'elagage', 'debardage', 'debroussaillage'];
+const PROPRETE = ['nettoyage-proprete', 'entretien-espaces-verts'];
+
+const groupesPoles = [
+  {
+    cle: 'foret',
+    titre: 'Travaux forestiers et soins aux arbres',
+    badge: "2/3 de l'activité",
+    intro: 'Abattage technique, bûcheronnage, élagage encordé, débardage des grumes et débroussaillement obligatoire (OLD).',
+    liste: prestations.filter((p) => FORESTIERS.includes(p.id)),
+  },
+  {
+    cle: 'proprete',
+    titre: 'Propreté et nettoyage de terrains',
+    badge: "1/3 de l'activité",
+    intro: 'Remise en état de parcelles en friche, avant-vente, fin de chantier et entretien paysager d\'espaces verts.',
+    liste: prestations.filter((p) => PROPRETE.includes(p.id)),
+  },
+];
 ---
-<ul class="prestations">
-  {prestations.map((p) => (
-    <li>
-      <a href={`/${p.id}/`}>
-        <Titre class="prestation-nom">{p.data.nom}</Titre>
-        <p>{court(p.data.accroche)}</p>
-      </a>
-    </li>
-  ))}
-</ul>
+
+{poles ? (
+  <div class="poles-conteneur">
+    {groupesPoles.map((g) => (
+      <section class={`pole-bloc pole-${g.cle}`} aria-label={g.titre}>
+        <div class="pole-entete">
+          <div class="pole-ligne-badge">
+            <span class={`pole-badge pole-badge-${g.cle}`}>{g.badge}</span>
+          </div>
+          <TitrePole class="pole-titre">{g.titre}</TitrePole>
+          <p class="pole-intro">{g.intro}</p>
+        </div>
+        <ul class="prestations">
+          {g.liste.map((p) => (
+            <li>
+              <a href={`/${p.id}/`}>
+                <Titre class="prestation-nom">{p.data.nom}</Titre>
+                <p>{court(p.data.accroche)}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
+) : (
+  <ul class="prestations">
+    {prestations.map((p) => (
+      <li>
+        <a href={`/${p.id}/`}>
+          <Titre class="prestation-nom">{p.data.nom}</Titre>
+          <p>{court(p.data.accroche)}</p>
+        </a>
+      </li>
+    ))}
+  </ul>
+)}
 
 <style>
+  .poles-conteneur {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-7);
+  }
+  .pole-bloc {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
+  }
+  .pole-entete {
+    padding-bottom: var(--s-2);
+  }
+  .pole-ligne-badge {
+    margin-bottom: var(--s-2);
+  }
+  .pole-badge {
+    display: inline-block;
+    font-family: var(--f-titre);
+    font-stretch: 80%;
+    font-weight: 700;
+    font-size: var(--t--1);
+    padding: 0.15rem 0.6rem;
+    border-radius: var(--rayon);
+    letter-spacing: 0.03em;
+  }
+  .pole-badge-foret {
+    background: var(--pin-profond);
+    color: #ffffff;
+  }
+  .pole-badge-proprete {
+    background: #eef4f0;
+    color: var(--pin-profond);
+    border: 1px solid var(--pin);
+  }
+  .pole-titre {
+    font-size: var(--t-2);
+    font-family: var(--f-titre);
+    font-stretch: 74%;
+    color: var(--pin-profond);
+    margin: 0 0 var(--s-2);
+  }
+  .pole-intro {
+    color: var(--texte-doux);
+    font-size: var(--t-0);
+    max-width: 60ch;
+    margin: 0;
+  }
   .prestations {
     list-style: none;
     padding: 0;
+    margin: 0;
     border-top: 2px solid var(--pin);
   }
   .prestations li {

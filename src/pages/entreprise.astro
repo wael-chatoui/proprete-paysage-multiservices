@@ -17,18 +17,18 @@ const miettes = [{ nom: "L'entreprise", chemin: '/entreprise/' }];
 ---
 <Base
   titre="Qui sommes-nous ? Propreté Paysage Multiservice, Louer"
-  description="Entreprise individuelle de travaux forestiers et d'entretien d'espaces verts créée en 2026 à Louer (Landes). SIRET 100 386 564 00015."
+  description="Entreprise individuelle de travaux forestiers, d'entretien paysager et de nettoyage de terrains à Louer (Landes). SIRET 100 386 564 00015."
   og="entreprise"
   miettes={miettes}
   typePage="AboutPage"
   principal={ID.entreprise}
 >
-  <Bandeau h1="Propreté Paysage Multiservice, travaux forestiers à Louer (40)" accroche={ENTITE} miettes={miettes} />
+  <Bandeau h1="Propreté Paysage Multiservice, travaux forestiers et propreté à Louer (40)" accroche={ENTITE} miettes={miettes} />
 
   <div class="enveloppe page-grille">
     <div class="prose page-texte">
       <h2>Que fait l'entreprise ?</h2>
-      <p>Elle prend en charge les arbres et les terrains, de la coupe à la remise en propreté : abattage et bûcheronnage, élagage, débardage des bois, débroussaillage (dont les obligations légales autour des maisons), entretien de jardins et nettoyage de terrains.</p>
+      <p>Elle prend en charge les arbres et les terrains, de la coupe à la remise en propreté : abattage et bûcheronnage, élagage, débardage des bois, débroussaillage (dont les obligations légales autour des habitations), propreté et nettoyage de terrains, et entretien de jardins.</p>
       <ul>
         {listePrestations.map((p) => <li><a href={`/${p.id}/`}>{p.data.nom}</a> : {p.data.accroche}</li>)}
       </ul>
